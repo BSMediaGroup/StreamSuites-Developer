@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Beta Program | StreamSuites Developer Console</title>
+  <link rel="icon" href="/assets/logos/favicon.ico" />
+  <link rel="stylesheet" href="/css/app.css" />
+</head>
+<body>
+  <header class="topbar"><div class="shell topbar-inner"><a class="brand" href="/"><img src="/assets/logos/logocircle.png" alt="" /><div><span class="brand-mark">StreamSuites</span><span class="brand-sub">Developer Console</span></div></a><nav class="nav-links"><a class="nav-link" data-nav="home" href="/">Home</a><a class="nav-link" data-nav="feedback" href="/feedback/">Feedback</a><a class="nav-link" data-nav="beta" href="/beta/">Beta</a><a class="nav-link" data-nav="dashboard" href="/dashboard/">Dashboard</a><a class="nav-link" data-nav="report" href="/report/submit/">Report</a><a class="nav-link" data-nav="keys" href="/keys/">Keys</a><span id="auth-slot"></span></nav></div></header>
+  <main class="shell page-shell">
+    <section class="page-intro">
+      <span class="eyebrow"><strong>Public route</strong> beta orientation</span>
+      <h1>Beta program foundation</h1>
+      <p class="muted">This is the first operational intake surface for StreamSuites beta testers. It is intentionally early, honest, and structured around useful testers rather than broad promises.</p>
+    </section>
+    <section class="main-stack">
+      <div class="grid-3">
+        <article class="route-card"><h3>Who we want early</h3><p class="muted">People with creator-tool fluency, SaaS UX instincts, calm bug reporting habits, and a willingness to test rough edges carefully.</p></article>
+        <article class="route-card"><h3>What this is not</h3><p class="muted">This is not paid support, a guaranteed launch list, or a promise that every requested workflow is already live.</p></article>
+        <article class="route-card"><h3>What helps most</h3><p class="muted">Clear reproduction notes, environment detail, practical product feedback, and disciplined follow-through across a few test cycles.</p></article>
+      </div>
+      <article class="detail-card">
+        <h2>Apply when you can contribute signal</h2>
+        <p class="muted">If you understand creator tooling, operational workflows, QA discipline, or technical product testing, the beta application route is ready.</p>
+        <a class="solid-button" href="/beta/apply/">Open beta application</a>
+      </article>
+    </section>
+  </main>
+  <footer class="footer"><div class="shell footer-inner"><span>Beta program</span><span>© <span data-year></span> Brainstream Media Group</span></div></footer>
+  <script type="module">
+    import { initConsolePage } from "/js/auth.js";
+    await initConsolePage({ navKey: "beta" });
+  </script>
+</body>
+</html>

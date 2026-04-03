@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>API Keys | StreamSuites Developer Console</title>
+  <link rel="icon" href="/assets/logos/favicon.ico" />
+  <link rel="stylesheet" href="/css/app.css" />
+</head>
+<body>
+  <header class="topbar"><div class="shell topbar-inner"><a class="brand" href="/"><img src="/assets/logos/logocircle.png" alt="" /><div><span class="brand-mark">StreamSuites</span><span class="brand-sub">Developer Console</span></div></a><nav class="nav-links"><a class="nav-link" data-nav="home" href="/">Home</a><a class="nav-link" data-nav="feedback" href="/feedback/">Feedback</a><a class="nav-link" data-nav="beta" href="/beta/">Beta</a><a class="nav-link" data-nav="dashboard" href="/dashboard/">Dashboard</a><a class="nav-link" data-nav="report" href="/report/submit/">Report</a><a class="nav-link" data-nav="keys" href="/keys/">Keys</a><span id="auth-slot"></span></nav></div></header>
+  <main class="shell page-shell">
+    <section class="page-intro">
+      <span class="eyebrow"><strong>Authenticated route</strong> future API access</span>
+      <h1>Scoped API key management lands later</h1>
+      <p class="muted">This route is intentionally reserved now. StreamSuites runtime will remain the authority for issuance, scope, rotation, and revocation when key management becomes real.</p>
+      <div id="keys-status" class="status-line">Checking session...</div>
+    </section>
+    <section class="main-stack">
+      <article class="detail-card">
+        <h2>What this milestone does not do</h2>
+        <ul>
+          <li>No real key creation or display.</li>
+          <li>No scope editor, rotation flow, or secret reveal UX yet.</li>
+          <li>No local key authority in this repo.</li>
+        </ul>
+      </article>
+    </section>
+  </main>
+  <footer class="footer"><div class="shell footer-inner"><span>Future API access route</span><span>© <span data-year></span> Brainstream Media Group</span></div></footer>
+  <script type="module" src="/js/keys.js"></script>
+</body>
+</html>

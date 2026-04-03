@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>StreamSuites Developer Console</title>
+  <meta name="description" content="Public feedback, beta intake, and authenticated developer tooling for StreamSuites at console.streamsuites.app." />
+  <link rel="icon" href="/assets/logos/favicon.ico" />
+  <link rel="stylesheet" href="/css/app.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="shell topbar-inner">
+      <a class="brand" href="/"><img src="/assets/logos/logocircle.png" alt="StreamSuites" /><div><span class="brand-mark">StreamSuites</span><span class="brand-sub">Developer Console</span></div></a>
+      <nav class="nav-links">
+        <a class="nav-link" data-nav="home" href="/">Home</a>
+        <a class="nav-link" data-nav="feedback" href="/feedback/">Feedback</a>
+        <a class="nav-link" data-nav="beta" href="/beta/">Beta</a>
+        <a class="nav-link" data-nav="dashboard" href="/dashboard/">Dashboard</a>
+        <a class="nav-link" data-nav="report" href="/report/submit/">Report</a>
+        <a class="nav-link" data-nav="keys" href="/keys/">Keys</a>
+        <span id="auth-slot"></span>
+      </nav>
+    </div>
+  </header>
+  <main class="shell">
+    <section class="hero">
+      <article class="hero-card">
+        <span class="eyebrow"><strong>console.streamsuites.app</strong> canonical surface</span>
+        <h1>Feedback, beta intake, and developer tooling without moving runtime authority.</h1>
+        <p class="muted">StreamSuites remains the single source of truth for auth, review queues, submissions, approvals, and future API key issuance. This repo is the Cloudflare Pages surface that exposes that authority cleanly.</p>
+        <div class="hero-actions">
+          <a class="solid-button" href="/feedback/">Open feedback hub</a>
+          <a class="ghost-button" href="/beta/apply/">Apply for beta</a>
+          <a class="ghost-button" href="/auth/login/">Sign in</a>
+        </div>
+      </article>
+      <article class="hero-card">
+        <h2>Current foundation</h2>
+        <div class="summary-grid">
+          <div class="kpi"><span class="kpi-value">Public</span><span class="muted">Feedback intake, feature requests, beta program orientation, and applications.</span></div>
+          <div class="kpi"><span class="kpi-value">Authenticated</span><span class="muted">Developer dashboard shell, future key-management placeholder, and report routing.</span></div>
+          <div class="kpi"><span class="kpi-value">Runtime-owned</span><span class="muted">Validation, storage, artifact metadata, and admin review remain in StreamSuites.</span></div>
+        </div>
+      </article>
+    </section>
+    <section class="main-stack">
+      <div class="route-grid">
+        <article class="route-card"><h3>Feedback hub</h3><p class="muted">New home for the old public requests surface, expanded to include general feedback alongside the approved request board.</p><a class="soft-button" href="/feedback/">Go to /feedback</a></article>
+        <article class="route-card"><h3>Beta program</h3><p class="muted">Public beta landing page plus structured application flow for disciplined testers and creator-tool power users.</p><a class="soft-button" href="/beta/">Go to /beta</a></article>
+        <article class="route-card"><h3>Developer dashboard</h3><p class="muted">Early authenticated home for account context, future console capabilities, and dev-only workflows.</p><a class="soft-button" href="/dashboard/">Go to /dashboard</a></article>
+        <article class="route-card"><h3>Detailed reporting</h3><p class="muted">Advanced, developer-capable report submission with structured metadata and safe artifact handling.</p><a class="soft-button" href="/report/submit/">Go to /report/submit</a></article>
+      </div>
+    </section>
+  </main>
+  <footer class="footer"><div class="shell footer-inner"><span>StreamSuites Developer Console</span><span>© <span data-year></span> Brainstream Media Group</span></div></footer>
+  <script type="module">
+    import { initConsolePage } from "/js/auth.js";
+    await initConsolePage({ navKey: "home" });
+  </script>
+</body>
+</html>

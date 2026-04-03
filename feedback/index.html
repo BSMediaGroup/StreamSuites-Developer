@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Feedback Hub | StreamSuites Developer Console</title>
+  <link rel="icon" href="/assets/logos/favicon.ico" />
+  <link rel="stylesheet" href="/css/app.css" />
+</head>
+<body>
+  <header class="topbar"><div class="shell topbar-inner"><a class="brand" href="/"><img src="/assets/logos/logocircle.png" alt="" /><div><span class="brand-mark">StreamSuites</span><span class="brand-sub">Developer Console</span></div></a><nav class="nav-links"><a class="nav-link" data-nav="home" href="/">Home</a><a class="nav-link" data-nav="feedback" href="/feedback/">Feedback</a><a class="nav-link" data-nav="beta" href="/beta/">Beta</a><a class="nav-link" data-nav="dashboard" href="/dashboard/">Dashboard</a><a class="nav-link" data-nav="report" href="/report/submit/">Report</a><a class="nav-link" data-nav="keys" href="/keys/">Keys</a><span id="auth-slot"></span></nav></div></header>
+  <main class="shell page-shell">
+    <section class="page-intro">
+      <span class="eyebrow"><strong>Public route</strong> feedback + approved requests</span>
+      <h1>Feedback hub</h1>
+      <p class="muted">General product feedback, roadmap requests, and the approved request board now live here instead of the old public `/requests` route.</p>
+    </section>
+    <section class="main-stack">
+      <article class="form-card">
+        <h2>Send feedback</h2>
+        <p class="muted">Keep it useful. Tell us what happened, what would improve the product, and how to reach you if follow-up helps.</p>
+        <div id="feedback-account-context"></div>
+        <form id="feedback-form" class="form-grid">
+          <label class="field"><span>Feedback type</span><select name="feedback_type"><option value="general_feedback">General feedback</option><option value="feature_request">Feature request</option><option value="workflow_feedback">Workflow friction</option></select></label>
+          <label class="field"><span>Short title</span><input name="title" maxlength="180" placeholder="What is the main point?" /></label>
+          <label class="field-wide"><span>Summary</span><input name="summary" maxlength="320" placeholder="Optional short summary for triage" /></label>
+          <label class="field-wide"><span>Details</span><textarea name="body" placeholder="Share the feedback, request, or context that would help us review it." required></textarea></label>
+          <label class="field"><span>Contact name</span><input name="contact_name" maxlength="160" placeholder="Optional" /></label>
+          <label class="field"><span>Contact email</span><input name="contact_email" type="email" maxlength="320" placeholder="Optional" /></label>
+          <div class="field-wide"><div class="split-actions"><button class="solid-button" type="submit">Submit feedback</button></div><div id="feedback-form-status" class="status-line"></div></div>
+        </form>
+      </article>
+      <article class="list-card">
+        <h2>Approved request board</h2>
+        <p class="muted">This preserves the existing runtime-backed request stream while the new feedback intake lands in the broader review queue.</p>
+        <div id="request-status" class="status-line"></div>
+        <div id="request-list" class="request-list"></div>
+      </article>
+    </section>
+  </main>
+  <footer class="footer"><div class="shell footer-inner"><span>Feedback hub</span><span>© <span data-year></span> Brainstream Media Group</span></div></footer>
+  <script type="module" src="/js/feedback.js"></script>
+</body>
+</html>

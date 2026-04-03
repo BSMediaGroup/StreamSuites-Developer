@@ -1,0 +1,11 @@
+/auth/*
+  Cache-Control: no-store
+
+/dashboard/*
+  Cache-Control: no-store
+
+/keys/*
+  Cache-Control: no-store
+
+/report/submit/*
+  Cache-Control: no-store
