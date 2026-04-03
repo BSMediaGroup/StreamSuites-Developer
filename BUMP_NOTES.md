@@ -2,6 +2,30 @@
 
 ## CURRENT VER= 0.4.2-alpha / PENDING VER= 0.4.3-alpha
 
+### Developer Console Auth Start Routing Fix - 2026-04-04
+
+#### Technical Notes
+
+- Root-caused live sign-in failure to a Cloudflare Pages route collision: the browser-facing login and success pages were mounted under `/auth/*`, but `functions/auth/[[path]].js` also owns that namespace and intercepted `/auth/login/` with the proxy's `404 {"success":false,"error":"Not Found"}` response before static HTML could render.
+- Moved the browser-facing handoff pages to `/login/` and `/login-success/`, which matches the proven Creator pattern of keeping human-facing login pages outside the proxied `/auth/*` namespace while still sending provider starts to `/auth/login/{provider}` and password posts to `/auth/login/password`.
+- Added exact legacy redirects from `/auth/login` and `/auth/success` (with and without trailing slash) to the new non-conflicting pages so older links and bookmarks still resolve after deploy.
+
+#### Human-Readable Notes
+
+- Console sign-in no longer relies on a page route that the auth proxy was swallowing.
+- The login page now lives at `/login/`, while the actual auth API starts stay on the existing proxied `/auth/...` endpoints.
+
+#### Files / Areas Touched
+
+- `BUMP_NOTES.md`
+- `DEPLOYMENT_SETUP.md`
+- `README.md`
+- `_redirects`
+- `index.html`
+- `js/config.js`
+- `login/index.html`
+- `login-success/index.html`
+
 ### Developer Console Foundation Scaffold - 2026-04-04
 
 #### Technical Notes

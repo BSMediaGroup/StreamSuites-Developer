@@ -24,8 +24,9 @@ Developer-console web surface for StreamSuites, intended for deployment on Cloud
 - `/dashboard` authenticated console home
 - `/report/submit` authenticated developer-only technical reporting route
 - `/keys` authenticated placeholder for future API key management
-- `/auth/login` sign-in handoff using existing StreamSuites auth flows
-- `/auth/success` auth-success return surface
+- `/login` sign-in handoff using existing StreamSuites auth flows
+- `/login-success` auth-success return surface
+- legacy `/auth/login` and `/auth/success` URLs redirect to the non-conflicting browser routes above
 
 ## Local Notes
 
@@ -51,11 +52,6 @@ StreamSuites-Developer/
 ├── DEPLOYMENT_SETUP.md
 ├── README.md
 ├── index.html
-├── auth/
-│   ├── login/
-│   │   └── index.html
-│   └── success/
-│       └── index.html
 ├── beta/
 │   ├── index.html
 │   └── apply/
@@ -86,6 +82,10 @@ StreamSuites-Developer/
 │   ├── keys.js
 │   ├── login.js
 │   └── report-submit.js
+├── login/
+│   └── index.html
+├── login-success/
+│   └── index.html
 ├── keys/
 │   └── index.html
 ├── report/

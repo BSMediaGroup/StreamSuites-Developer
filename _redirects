@@ -1,5 +1,7 @@
-/auth/login /auth/login/ 301
-/auth/success /auth/success/ 301
+/auth/login /login/ 302
+/auth/login/ /login/ 302
+/auth/success /login-success/ 302
+/auth/success/ /login-success/ 302
 /beta/apply /beta/apply/ 301
 /dashboard /dashboard/ 301
 /feedback /feedback/ 301

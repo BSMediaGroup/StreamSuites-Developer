@@ -6,7 +6,7 @@ export function absoluteConsoleUrl(pathname = "/") {
 }
 
 export function buildLoginPageUrl(returnTo = window.location.pathname) {
-  const url = new URL("/auth/login/", window.location.origin);
+  const url = new URL("/login/", window.location.origin);
   url.searchParams.set("return_to", absoluteConsoleUrl(returnTo));
   return url.toString();
 }
