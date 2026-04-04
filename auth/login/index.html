@@ -2,35 +2,17 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
+  <meta http-equiv="refresh" content="0; url=/login/" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Sign In | StreamSuites Developer Console</title>
-  <link rel="icon" href="/assets/logos/favicon.ico" />
+  <title>Redirecting | StreamSuites Developer Console</title>
   <link rel="stylesheet" href="/css/app.css" />
 </head>
 <body>
-  <main class="shell page-shell">
-    <section class="login-grid">
-      <article class="hero-card">
-        <span class="eyebrow"><strong>Authentication</strong> existing StreamSuites auth</span>
-        <h1>Sign in to the console</h1>
-        <p class="muted">This repo uses the existing StreamSuites auth system. It does not own identity, role policy, or session authority.</p>
-        <form id="password-login-form" class="form-grid">
-          <label class="field"><span>Email</span><input name="email" type="email" autocomplete="email" required /></label>
-          <label class="field"><span>Password</span><input name="password" type="password" autocomplete="current-password" required /></label>
-          <div class="field-wide"><button class="solid-button" type="submit">Continue with password</button></div>
-        </form>
-        <div id="login-status" class="status-line">Preparing sign-in links...</div>
-      </article>
-      <article class="detail-card">
-        <h2>Other sign-in methods</h2>
-        <div class="provider-grid">
-          <button class="ghost-button provider-button" type="button" data-provider="google">Continue with Google</button>
-          <button class="ghost-button provider-button" type="button" data-provider="github">Continue with GitHub</button>
-          <button class="ghost-button provider-button" type="button" data-provider="discord">Continue with Discord</button>
-        </div>
-      </article>
-    </section>
+  <main class="shell narrow page-shell">
+    <article class="hero-card">
+      <h1>Redirecting</h1>
+      <p class="muted">The browser-facing login surface now lives at <a href="/login/">/login</a>.</p>
+    </article>
   </main>
-  <script type="module" src="/js/login.js"></script>
 </body>
 </html>

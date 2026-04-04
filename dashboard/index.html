@@ -8,27 +8,57 @@
   <link rel="stylesheet" href="/css/app.css" />
 </head>
 <body>
-  <header class="topbar"><div class="shell topbar-inner"><a class="brand" href="/"><img src="/assets/logos/logocircle.png" alt="" /><div><span class="brand-mark">StreamSuites</span><span class="brand-sub">Developer Console</span></div></a><nav class="nav-links"><a class="nav-link" data-nav="home" href="/">Home</a><a class="nav-link" data-nav="feedback" href="/feedback/">Feedback</a><a class="nav-link" data-nav="beta" href="/beta/">Beta</a><a class="nav-link" data-nav="dashboard" href="/dashboard/">Dashboard</a><a class="nav-link" data-nav="report" href="/report/submit/">Report</a><a class="nav-link" data-nav="keys" href="/keys/">Keys</a><span id="auth-slot"></span></nav></div></header>
-  <main class="shell page-shell">
-    <section class="page-intro">
-      <span class="eyebrow"><strong>Authenticated route</strong> dashboard foundation</span>
-      <h1>Developer dashboard foundation</h1>
-      <p class="muted">This console stays presentation-only. StreamSuites remains the authority for identity, runtime state, submissions, approvals, and future API key issuance.</p>
-      <div id="dashboard-status" class="status-line">Checking session...</div>
-    </section>
-    <section class="main-stack">
-      <div class="summary-grid">
-        <article class="summary-card"><h3>Identity</h3><p id="dashboard-identity" class="mono">Loading...</p></article>
-        <article class="summary-card"><h3>Role</h3><p id="dashboard-role">Loading...</p></article>
-        <article class="summary-card"><h3>Tier</h3><p id="dashboard-tier">Loading...</p></article>
+  <div class="console-app">
+    <aside class="console-sidebar">
+      <a class="shell-brand" href="/dashboard/">
+        <img src="/assets/logos/logocircle.png" alt="StreamSuites" />
+        <div class="shell-brand-copy">
+          <span class="shell-brand-mark">StreamSuites</span>
+          <span class="shell-brand-sub">Developer Console</span>
+        </div>
+      </a>
+      <div class="console-sidebar-nav">
+        <span class="console-sidebar-label">Console</span>
+        <a class="shell-nav-link" data-shell-nav="dashboard" href="/dashboard/">Dashboard</a>
+        <a class="shell-nav-link" data-shell-nav="reports" href="/reports/">Reports</a>
+        <a class="shell-nav-link" data-shell-nav="keys" href="/keys/">Keys</a>
       </div>
-      <div class="route-grid">
-        <article class="route-card"><h3>Detailed reporting</h3><p class="muted">Submit structured developer-only reports with richer technical detail and safe artifact metadata.</p><a class="soft-button" href="/report/submit/">Open report form</a></article>
-        <article class="route-card"><h3>API key route</h3><p class="muted">The `/keys` route is reserved now so future scoped key management can land without a route migration.</p><a class="soft-button" href="/keys/">View key roadmap</a></article>
+      <div class="console-sidebar-footer">
+        <span class="console-sidebar-label">Quicklink</span>
+        <a class="shell-nav-link external" href="/beta/" target="_blank" rel="noreferrer">Beta</a>
       </div>
-    </section>
-  </main>
-  <footer class="footer"><div class="shell footer-inner"><span>Developer dashboard</span><span>© <span data-year></span> Brainstream Media Group</span></div></footer>
+    </aside>
+    <div class="console-main">
+      <header class="shell-topbar">
+        <div class="shell shell-topbar-inner">
+          <div class="shell-topbar-left">
+            <div class="shell-page-title">
+              <span class="shell-kicker"><strong>Authenticated</strong> dashboard home</span>
+              <h1>Developer dashboard</h1>
+              <p>Presentation-only console surface backed by StreamSuites auth and report authority.</p>
+            </div>
+          </div>
+          <div class="shell-topbar-right">
+            <span data-auth-slot></span>
+          </div>
+        </div>
+      </header>
+      <main class="console-surface">
+        <div class="console-surface-inner main-stack">
+          <div id="dashboard-status" class="status-line">Checking session...</div>
+          <div class="shell-panel-grid">
+            <article class="summary-card"><h3>Identity</h3><p id="dashboard-identity" class="mono">Loading...</p></article>
+            <article class="summary-card"><h3>Role</h3><p id="dashboard-role">Loading...</p></article>
+            <article class="summary-card"><h3>Tier</h3><p id="dashboard-tier">Loading...</p></article>
+          </div>
+          <div class="route-grid">
+            <article class="route-card"><h3>Reports hub</h3><p class="muted">Use `/reports` as the authenticated console launch point for public feedback and detailed technical reporting.</p><a class="soft-button" href="/reports/">Open reports hub</a></article>
+            <article class="route-card"><h3>API keys</h3><p class="muted">The `/keys` route stays reserved so future key management can land without another IA migration.</p><a class="soft-button" href="/keys/">View keys workspace</a></article>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
   <script type="module" src="/js/dashboard.js"></script>
 </body>
 </html>

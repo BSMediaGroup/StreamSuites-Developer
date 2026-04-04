@@ -4,8 +4,11 @@
 /dashboard/*
   Cache-Control: no-store
 
+/reports/*
+  Cache-Control: no-store
+
 /keys/*
   Cache-Control: no-store
 
-/report/submit/*
+/reports/submit/*
   Cache-Control: no-store

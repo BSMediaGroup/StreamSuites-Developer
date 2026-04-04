@@ -8,12 +8,42 @@
   <link rel="stylesheet" href="/css/app.css" />
 </head>
 <body>
-  <main class="shell page-shell">
+  <header class="topbar">
+    <div class="shell narrow topbar-inner">
+      <a class="brand" href="/">
+        <img src="/assets/logos/logocircle.png" alt="StreamSuites" />
+        <div class="brand-copy">
+          <span class="brand-mark">StreamSuites</span>
+          <span class="brand-sub">Developer Console</span>
+        </div>
+      </a>
+      <div class="standalone-actions">
+        <a class="header-link" href="/dashboard/">Back to dashboard</a>
+      </div>
+    </div>
+  </header>
+  <main class="shell narrow page-shell">
     <section class="login-grid">
       <article class="hero-card">
-        <span class="eyebrow"><strong>Authentication</strong> existing StreamSuites auth</span>
-        <h1>Sign in to the console</h1>
-        <p class="muted">This repo uses the existing StreamSuites auth system. It does not own identity, role policy, or session authority.</p>
+        <div class="login-panel-title">
+          <span class="eyebrow"><strong>Authentication</strong> existing StreamSuites auth</span>
+          <h1>Sign in to the developer console</h1>
+          <p class="muted">This repo uses the existing StreamSuites auth system. It does not own identity, role policy, or session authority.</p>
+        </div>
+        <section id="login-access-gate" class="access-gate" hidden>
+          <div class="access-gate-summary">
+            <p id="login-access-message" class="access-gate-message"></p>
+            <button id="login-access-toggle" class="access-gate-toggle" type="button" aria-expanded="false" aria-controls="login-access-form" hidden>Use bypass code</button>
+          </div>
+          <form id="login-access-form" class="access-gate-form" hidden novalidate>
+            <label class="access-gate-field" for="login-access-code">
+              <span>Bypass code</span>
+              <input id="login-access-code" type="password" autocomplete="current-password" spellcheck="false" />
+            </label>
+            <button id="login-access-submit" class="access-gate-submit" type="submit">Unlock</button>
+          </form>
+          <p id="login-access-feedback" class="access-gate-feedback" hidden></p>
+        </section>
         <form id="password-login-form" class="form-grid">
           <label class="field"><span>Email</span><input name="email" type="email" autocomplete="email" required /></label>
           <label class="field"><span>Password</span><input name="password" type="password" autocomplete="current-password" required /></label>
@@ -22,15 +52,22 @@
         <div id="login-status" class="status-line">Preparing sign-in links...</div>
       </article>
       <article class="detail-card">
-        <h2>Other sign-in methods</h2>
+        <div class="login-panel-title">
+          <h2>Continue with OAuth</h2>
+          <p class="muted">The existing StreamSuites provider flow remains unchanged. This page only adds the same access-gate and provider parity used elsewhere on the platform.</p>
+        </div>
         <div class="provider-grid">
-          <button class="ghost-button provider-button" type="button" data-provider="google">Continue with Google</button>
-          <button class="ghost-button provider-button" type="button" data-provider="github">Continue with GitHub</button>
-          <button class="ghost-button provider-button" type="button" data-provider="discord">Continue with Discord</button>
+          <button class="ghost-button provider-button" type="button" data-provider="google"><img src="/assets/icons/google.svg" alt="" aria-hidden="true" />Continue with Google</button>
+          <button class="ghost-button provider-button" type="button" data-provider="github"><img src="/assets/icons/github.svg" alt="" aria-hidden="true" />Continue with GitHub</button>
+          <button class="ghost-button provider-button" type="button" data-provider="discord"><img src="/assets/icons/discord.svg" alt="" aria-hidden="true" />Continue with Discord</button>
         </div>
       </article>
     </section>
   </main>
+  <script type="module">
+    import { initConsolePage } from "/js/auth.js";
+    await initConsolePage({ navKey: "login" });
+  </script>
   <script type="module" src="/js/login.js"></script>
 </body>
 </html>

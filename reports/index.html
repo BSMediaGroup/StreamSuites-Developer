@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>API Keys | StreamSuites Developer Console</title>
+  <title>Reports Hub | StreamSuites Developer Console</title>
   <link rel="icon" href="/assets/logos/favicon.ico" />
   <link rel="stylesheet" href="/css/app.css" />
 </head>
@@ -33,9 +33,9 @@
         <div class="shell shell-topbar-inner">
           <div class="shell-topbar-left">
             <div class="shell-page-title">
-              <span class="shell-kicker"><strong>Authenticated</strong> reserved workspace</span>
-              <h1>Keys</h1>
-              <p>This stays inside the protected shell, but StreamSuites still owns issuance, scope, rotation, and revocation.</p>
+              <span class="shell-kicker"><strong>Authenticated</strong> reports hub</span>
+              <h1>Reports</h1>
+              <p>Public feedback stays open to everyone. Detailed technical reports stay behind the authenticated developer flow.</p>
             </div>
           </div>
           <div class="shell-topbar-right">
@@ -45,19 +45,27 @@
       </header>
       <main class="console-surface">
         <div class="console-surface-inner main-stack">
-          <div id="keys-status" class="status-line">Checking session...</div>
+          <div id="reports-status" class="status-line">Checking session...</div>
           <article class="detail-card">
-            <h2>What this milestone does not do</h2>
-            <ul>
-              <li>No real key creation or display.</li>
-              <li>No scope editor, rotation flow, or secret reveal UX yet.</li>
-              <li>No local key authority in this repo.</li>
-            </ul>
+            <h2>Choose the right route</h2>
+            <p class="muted">Use public feedback for general product input, feature requests, and lighter workflow notes. Use the detailed reports route for reproducible bugs, regressions, technical findings, and structured metadata.</p>
           </article>
+          <div class="route-grid">
+            <article class="route-card">
+              <h3>Public feedback intake</h3>
+              <p class="muted">Open the standalone feedback surface in a new tab for general product feedback and approved-request browsing.</p>
+              <a class="solid-button" href="/feedback/" target="_blank" rel="noreferrer">Open /feedback</a>
+            </article>
+            <article class="route-card">
+              <h3>Developer report submission</h3>
+              <p class="muted">Open the standalone detailed report form in a new tab for structured technical reporting with safe artifact upload metadata.</p>
+              <a class="solid-button" href="/reports/submit/" target="_blank" rel="noreferrer">Open /reports/submit</a>
+            </article>
+          </div>
         </div>
       </main>
     </div>
   </div>
-  <script type="module" src="/js/keys.js"></script>
+  <script type="module" src="/js/reports.js"></script>
 </body>
 </html>

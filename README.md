@@ -5,28 +5,30 @@ Developer-console web surface for StreamSuites, intended for deployment on Cloud
 ## Purpose
 
 - Public-facing intake for feedback, feature requests, and beta applications.
-- Authenticated developer-facing shell for detailed reporting and later API-access tooling.
+- Authenticated developer-facing shell for the dashboard, reports hub, and later API-access tooling.
 - Static web surface only. Runtime state, auth, submissions, approvals, and future API key authority remain in `StreamSuites`.
 
 ## Authority Boundary
 
 - `StreamSuites` owns auth/session authority, authoritative validation, submission persistence, artifact handling, and admin-review APIs.
 - `StreamSuites-Dashboard` consumes the same runtime-owned intake records for admin review.
-- `StreamSuites-Public /requests` is now expected to redirect here, to `https://console.streamsuites.app/feedback`.
+- `StreamSuites-Public /requests` is expected to redirect here, to `https://console.streamsuites.app/feedback`.
 - This repo does not create an alternate identity system or canonical submission store.
 
 ## Routes
 
 - `/` public landing and routing hub
-- `/feedback` public feedback and request intake plus approved request board
-- `/beta` public beta-program landing
-- `/beta/apply` public beta application form
-- `/dashboard` authenticated console home
-- `/report/submit` authenticated developer-only technical reporting route
-- `/keys` authenticated placeholder for future API key management
-- `/login` sign-in handoff using existing StreamSuites auth flows
+- `/feedback` standalone public feedback and request intake plus approved request board
+- `/beta` standalone public beta-program landing
+- `/beta/apply` standalone public beta application form
+- `/dashboard` authenticated console home inside the sidebar/topbar shell
+- `/reports` authenticated reports hub inside the sidebar/topbar shell
+- `/reports/submit` canonical standalone authenticated developer-only technical reporting route
+- `/keys` authenticated placeholder for future API key management inside the sidebar/topbar shell
+- `/login` sign-in handoff using existing StreamSuites auth flows, now with auth-gate bypass parity and provider icons
 - `/login-success` auth-success return surface
-- legacy `/auth/login` and `/auth/success` URLs redirect to the non-conflicting browser routes above
+- legacy `/auth/login` and `/auth/success` URLs redirect to the browser routes above
+- legacy `/report/submit` redirects to canonical `/reports/submit`
 
 ## Local Notes
 
@@ -52,6 +54,11 @@ StreamSuites-Developer/
 ├── DEPLOYMENT_SETUP.md
 ├── README.md
 ├── index.html
+├── auth/
+│   ├── login/
+│   │   └── index.html
+│   └── success/
+│       └── index.html
 ├── beta/
 │   ├── index.html
 │   └── apply/
@@ -81,14 +88,19 @@ StreamSuites-Developer/
 │   ├── feedback.js
 │   ├── keys.js
 │   ├── login.js
-│   └── report-submit.js
+│   ├── report-submit.js
+│   └── reports.js
+├── keys/
+│   └── index.html
 ├── login/
 │   └── index.html
 ├── login-success/
 │   └── index.html
-├── keys/
-│   └── index.html
 ├── report/
+│   └── submit/
+│       └── index.html
+├── reports/
+│   ├── index.html
 │   └── submit/
 │       └── index.html
 └── assets/

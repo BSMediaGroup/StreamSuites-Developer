@@ -6,4 +6,7 @@
 /dashboard /dashboard/ 301
 /feedback /feedback/ 301
 /keys /keys/ 301
-/report/submit /report/submit/ 301
+/reports /reports/ 301
+/reports/submit /reports/submit/ 301
+/report/submit /reports/submit/ 301
+/report/submit/ /reports/submit/ 301

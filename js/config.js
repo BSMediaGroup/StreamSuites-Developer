@@ -5,7 +5,11 @@ export function absoluteConsoleUrl(pathname = "/") {
   return new URL(pathname, window.location.origin).toString();
 }
 
-export function buildLoginPageUrl(returnTo = window.location.pathname) {
+export function buildReturnToPath() {
+  return `${window.location.pathname || "/"}${window.location.search || ""}${window.location.hash || ""}`;
+}
+
+export function buildLoginPageUrl(returnTo = buildReturnToPath()) {
   const url = new URL("/login/", window.location.origin);
   url.searchParams.set("return_to", absoluteConsoleUrl(returnTo));
   return url.toString();

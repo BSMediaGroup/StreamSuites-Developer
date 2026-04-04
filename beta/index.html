@@ -8,12 +8,26 @@
   <link rel="stylesheet" href="/css/app.css" />
 </head>
 <body>
-  <header class="topbar"><div class="shell topbar-inner"><a class="brand" href="/"><img src="/assets/logos/logocircle.png" alt="" /><div><span class="brand-mark">StreamSuites</span><span class="brand-sub">Developer Console</span></div></a><nav class="nav-links"><a class="nav-link" data-nav="home" href="/">Home</a><a class="nav-link" data-nav="feedback" href="/feedback/">Feedback</a><a class="nav-link" data-nav="beta" href="/beta/">Beta</a><a class="nav-link" data-nav="dashboard" href="/dashboard/">Dashboard</a><a class="nav-link" data-nav="report" href="/report/submit/">Report</a><a class="nav-link" data-nav="keys" href="/keys/">Keys</a><span id="auth-slot"></span></nav></div></header>
+  <header class="topbar">
+    <div class="shell topbar-inner">
+      <a class="brand" href="/">
+        <img src="/assets/logos/logocircle.png" alt="StreamSuites" />
+        <div class="brand-copy">
+          <span class="brand-mark">StreamSuites</span>
+          <span class="brand-sub">Developer Console</span>
+        </div>
+      </a>
+      <div class="standalone-actions">
+        <a class="header-link" href="/dashboard/">Back to dashboard</a>
+        <span data-auth-slot></span>
+      </div>
+    </div>
+  </header>
   <main class="shell page-shell">
     <section class="page-intro">
-      <span class="eyebrow"><strong>Public route</strong> beta orientation</span>
+      <span class="eyebrow"><strong>Standalone route</strong> beta orientation</span>
       <h1>Beta program foundation</h1>
-      <p class="muted">This is the first operational intake surface for StreamSuites beta testers. It is intentionally early, honest, and structured around useful testers rather than broad promises.</p>
+      <p class="muted">This remains a public-facing beta surface. It is intentionally separate from the authenticated developer shell.</p>
     </section>
     <section class="main-stack">
       <div class="grid-3">

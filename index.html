@@ -11,24 +11,25 @@
 <body>
   <header class="topbar">
     <div class="shell topbar-inner">
-      <a class="brand" href="/"><img src="/assets/logos/logocircle.png" alt="StreamSuites" /><div><span class="brand-mark">StreamSuites</span><span class="brand-sub">Developer Console</span></div></a>
-      <nav class="nav-links">
-        <a class="nav-link" data-nav="home" href="/">Home</a>
-        <a class="nav-link" data-nav="feedback" href="/feedback/">Feedback</a>
-        <a class="nav-link" data-nav="beta" href="/beta/">Beta</a>
-        <a class="nav-link" data-nav="dashboard" href="/dashboard/">Dashboard</a>
-        <a class="nav-link" data-nav="report" href="/report/submit/">Report</a>
-        <a class="nav-link" data-nav="keys" href="/keys/">Keys</a>
-        <span id="auth-slot"></span>
-      </nav>
+      <a class="brand" href="/">
+        <img src="/assets/logos/logocircle.png" alt="StreamSuites" />
+        <div class="brand-copy">
+          <span class="brand-mark">StreamSuites</span>
+          <span class="brand-sub">Developer Console</span>
+        </div>
+      </a>
+      <div class="standalone-actions">
+        <a class="header-link" href="/dashboard/">Open dashboard</a>
+        <span data-auth-slot></span>
+      </div>
     </div>
   </header>
-  <main class="shell">
+  <main class="shell page-shell">
     <section class="hero">
       <article class="hero-card">
         <span class="eyebrow"><strong>console.streamsuites.app</strong> canonical surface</span>
         <h1>Feedback, beta intake, and developer tooling without moving runtime authority.</h1>
-        <p class="muted">StreamSuites remains the single source of truth for auth, review queues, submissions, approvals, and future API key issuance. This repo is the Cloudflare Pages surface that exposes that authority cleanly.</p>
+        <p class="muted">StreamSuites remains the single source of truth for auth, review queues, submissions, approvals, and future API key issuance. This repo is the Pages surface that exposes that authority cleanly.</p>
         <div class="hero-actions">
           <a class="solid-button" href="/feedback/">Open feedback hub</a>
           <a class="ghost-button" href="/beta/apply/">Apply for beta</a>
@@ -38,18 +39,18 @@
       <article class="hero-card">
         <h2>Current foundation</h2>
         <div class="summary-grid">
-          <div class="kpi"><span class="kpi-value">Public</span><span class="muted">Feedback intake, feature requests, beta program orientation, and applications.</span></div>
-          <div class="kpi"><span class="kpi-value">Authenticated</span><span class="muted">Developer dashboard shell, future key-management placeholder, and report routing.</span></div>
+          <div class="kpi"><span class="kpi-value">Public</span><span class="muted">Feedback intake, feature requests, beta orientation, and applications.</span></div>
+          <div class="kpi"><span class="kpi-value">Authenticated</span><span class="muted">A real dashboard shell for the developer console, reports hub, and keys workspace.</span></div>
           <div class="kpi"><span class="kpi-value">Runtime-owned</span><span class="muted">Validation, storage, artifact metadata, and admin review remain in StreamSuites.</span></div>
         </div>
       </article>
     </section>
     <section class="main-stack">
       <div class="route-grid">
-        <article class="route-card"><h3>Feedback hub</h3><p class="muted">New home for the old public requests surface, expanded to include general feedback alongside the approved request board.</p><a class="soft-button" href="/feedback/">Go to /feedback</a></article>
-        <article class="route-card"><h3>Beta program</h3><p class="muted">Public beta landing page plus structured application flow for disciplined testers and creator-tool power users.</p><a class="soft-button" href="/beta/">Go to /beta</a></article>
-        <article class="route-card"><h3>Developer dashboard</h3><p class="muted">Early authenticated home for account context, future console capabilities, and dev-only workflows.</p><a class="soft-button" href="/dashboard/">Go to /dashboard</a></article>
-        <article class="route-card"><h3>Detailed reporting</h3><p class="muted">Advanced, developer-capable report submission with structured metadata and safe artifact handling.</p><a class="soft-button" href="/report/submit/">Go to /report/submit</a></article>
+        <article class="route-card"><h3>Feedback hub</h3><p class="muted">Public intake for general product feedback and the approved request board.</p><a class="soft-button" href="/feedback/">Go to /feedback</a></article>
+        <article class="route-card"><h3>Beta program</h3><p class="muted">Public beta orientation and application routes remain outside the authenticated shell.</p><a class="soft-button" href="/beta/">Go to /beta</a></article>
+        <article class="route-card"><h3>Developer dashboard</h3><p class="muted">Authenticated home for account context, report launch paths, and console-native navigation.</p><a class="soft-button" href="/dashboard/">Go to /dashboard</a></article>
+        <article class="route-card"><h3>Reports</h3><p class="muted">The authenticated reports hub now separates public feedback intake from detailed developer reporting.</p><a class="soft-button" href="/reports/">Go to /reports</a></article>
       </div>
     </section>
   </main>

@@ -2,6 +2,53 @@
 
 ## CURRENT VER= 0.4.2-alpha / PENDING VER= 0.4.3-alpha
 
+### Developer Console IA / Shell / Login Parity Polish Pass - 2026-04-04
+
+#### Technical Notes
+
+- Replaced the old shared horizontal-nav treatment with two explicit chrome systems in the Developer repo: authenticated console routes now use a real sidebar plus topbar shell on `/dashboard`, `/reports`, and `/keys`, while `/feedback`, `/beta`, `/beta/apply`, `/reports/submit`, `/login`, and `/login-success` stay on a lighter standalone header.
+- Refactored `css/app.css` around wider shared content widths and a reduced heading scale so the console keeps the same visual family without the earlier cramped layout and oversized page titles.
+- Expanded `js/auth.js` from a simple status-chip slot into a reusable session widget with avatar/name metadata, dropdown actions, logout wiring, and active-route handling for both standalone pages and the authenticated shell.
+- Added a new authenticated `/reports` hub page plus `js/reports.js`, and moved the actual detailed developer report form to canonical `/reports/submit/`.
+- Replaced `report/submit/index.html` with a redirect stub and updated `_redirects` so legacy `/report/submit` and `/report/submit/` both resolve to `/reports/submit/` cleanly after deploy.
+- Updated `js/report-submit.js` so submissions now identify themselves with `source_route: "/reports/submit/"`, keeping route metadata aligned with the new canonical page.
+- Added login-page auth-gate parity in `login/index.html` and `js/login.js`: the page now consumes `/auth/access-state`, exposes a bypass-code unlock form backed by `/auth/debug/unlock`, and renders Google, GitHub, and Discord provider icons while preserving the already-working `return_to` flow and existing auth starts.
+- Shortened both legacy browser-facing auth pages under `auth/login/index.html` and `auth/success/index.html` into explicit redirect stubs because `/login` and `/login-success` remain the browser-facing routes after the earlier proxy-namespace fix.
+
+#### Human-Readable Notes
+
+- The console now has a real authenticated shell instead of scattered top links.
+- Standalone public and intake pages still feel connected to the console, but they stay outside the protected shell.
+- `/reports/submit` is now the real report page, and the old `/report/submit` path redirects there.
+- The login page now includes the bypass-code field pattern and provider icons without regressing the working sign-in handoff.
+
+#### Files / Areas Touched
+
+- `BUMP_NOTES.md`
+- `DEPLOYMENT_SETUP.md`
+- `README.md`
+- `_headers`
+- `_redirects`
+- `index.html`
+- `auth/login/index.html`
+- `auth/success/index.html`
+- `beta/index.html`
+- `beta/apply/index.html`
+- `css/app.css`
+- `dashboard/index.html`
+- `feedback/index.html`
+- `js/auth.js`
+- `js/config.js`
+- `js/login.js`
+- `js/report-submit.js`
+- `js/reports.js`
+- `keys/index.html`
+- `login/index.html`
+- `login-success/index.html`
+- `report/submit/index.html`
+- `reports/index.html`
+- `reports/submit/index.html`
+
 ### Developer Console Auth Start Routing Fix - 2026-04-04
 
 #### Technical Notes

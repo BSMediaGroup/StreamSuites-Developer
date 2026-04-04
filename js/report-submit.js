@@ -4,7 +4,7 @@ import { initConsolePage } from "./auth.js";
 const formEl = document.getElementById("report-form");
 const statusEl = document.getElementById("report-status");
 
-const page = await initConsolePage({ navKey: "report", authRequired: true, developerRequired: true, statusTargetId: "report-status" });
+const page = await initConsolePage({ navKey: "reports", authRequired: true, developerRequired: true, statusTargetId: "report-status" });
 
 if (!page.blocked) {
   formEl?.addEventListener("submit", async (event) => {
@@ -29,7 +29,7 @@ if (!page.blocked) {
           account_context: formData.get("account_context"),
           body: formData.get("body"),
           structured_metadata: formData.get("structured_metadata"),
-          source_route: "/report/submit/",
+          source_route: "/reports/submit/",
         }),
       });
       const submissionId = submissionPayload?.submission?.id;

@@ -8,12 +8,26 @@
   <link rel="stylesheet" href="/css/app.css" />
 </head>
 <body>
-  <header class="topbar"><div class="shell topbar-inner"><a class="brand" href="/"><img src="/assets/logos/logocircle.png" alt="" /><div><span class="brand-mark">StreamSuites</span><span class="brand-sub">Developer Console</span></div></a><nav class="nav-links"><a class="nav-link" data-nav="home" href="/">Home</a><a class="nav-link" data-nav="feedback" href="/feedback/">Feedback</a><a class="nav-link" data-nav="beta" href="/beta/">Beta</a><a class="nav-link" data-nav="dashboard" href="/dashboard/">Dashboard</a><a class="nav-link" data-nav="report" href="/report/submit/">Report</a><a class="nav-link" data-nav="keys" href="/keys/">Keys</a><span id="auth-slot"></span></nav></div></header>
+  <header class="topbar">
+    <div class="shell topbar-inner">
+      <a class="brand" href="/">
+        <img src="/assets/logos/logocircle.png" alt="StreamSuites" />
+        <div class="brand-copy">
+          <span class="brand-mark">StreamSuites</span>
+          <span class="brand-sub">Developer Console</span>
+        </div>
+      </a>
+      <div class="standalone-actions">
+        <a class="header-link" href="/dashboard/">Back to dashboard</a>
+        <span data-auth-slot></span>
+      </div>
+    </div>
+  </header>
   <main class="shell page-shell">
     <section class="page-intro">
-      <span class="eyebrow"><strong>Public route</strong> feedback + approved requests</span>
+      <span class="eyebrow"><strong>Standalone route</strong> public feedback + approved requests</span>
       <h1>Feedback hub</h1>
-      <p class="muted">General product feedback, roadmap requests, and the approved request board now live here instead of the old public `/requests` route.</p>
+      <p class="muted">General product feedback, roadmap requests, and the approved request board live here outside the authenticated console shell.</p>
     </section>
     <section class="main-stack">
       <article class="form-card">
@@ -32,7 +46,7 @@
       </article>
       <article class="list-card">
         <h2>Approved request board</h2>
-        <p class="muted">This preserves the existing runtime-backed request stream while the new feedback intake lands in the broader review queue.</p>
+        <p class="muted">This keeps the existing runtime-backed request stream visible while broader feedback intake lands in the review queue.</p>
         <div id="request-status" class="status-line"></div>
         <div id="request-list" class="request-list"></div>
       </article>
