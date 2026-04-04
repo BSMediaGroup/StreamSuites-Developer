@@ -24,6 +24,10 @@ function getTier(me) {
   return me?.effective_tier?.display_tier_label || me?.effective_tier?.tier_label || me?.tier || "core";
 }
 
+function getDisplayTier(me) {
+  return String(getTier(me) || "").trim() || "Core";
+}
+
 function getIdentitySummary(me) {
   const role = String(getRole(me) || "").trim();
   const tier = String(getTier(me) || "").trim();
@@ -52,6 +56,33 @@ function getDeveloperConsoleAccess(me) {
         public_routes: [],
         protected_routes: [],
       };
+}
+
+function getAdminDashboardAccess(me) {
+  const access = me?.admin_access;
+  return access && typeof access === "object" ? access : { allowed: false };
+}
+
+function getCreatorWorkspaceAccess(me) {
+  const access = me?.creator_workspace_access;
+  return access && typeof access === "object" ? access : { allowed: false };
+}
+
+function isCreatorDashboardAllowed(me) {
+  return getCreatorWorkspaceAccess(me)?.allowed === true || me?.creator_capable === true;
+}
+
+function isAdminDashboardAllowed(me) {
+  return getAdminDashboardAccess(me)?.allowed === true;
+}
+
+function getAccountOverviewRows(me) {
+  return [
+    { label: "Display name", value: getDisplayName(me) },
+    { label: "Email", value: getEmail(me) },
+    { label: "Account type", value: String(getRole(me) || "account") },
+    { label: "Tier", value: getDisplayTier(me) },
+  ];
 }
 
 async function logoutAndRedirect() {
@@ -92,6 +123,8 @@ function renderSignedOutSlot(slot) {
 function renderSignedInSlot(slot, me) {
   slot.innerHTML = "";
   const developerAccess = getDeveloperConsoleAccess(me);
+  const creatorAllowed = isCreatorDashboardAllowed(me);
+  const adminAllowed = isAdminDashboardAllowed(me);
 
   const widget = document.createElement("div");
   widget.className = "user-widget";
@@ -129,23 +162,49 @@ function renderSignedInSlot(slot, me) {
   menu.hidden = true;
   menu.setAttribute("role", "menu");
   menu.setAttribute("data-user-menu", "true");
-  menu.innerHTML = `
-    <div class="user-menu-header">
-      <div class="user-menu-name">${getDisplayName(me)}</div>
-      <div class="user-menu-email">${getEmail(me)}</div>
-      <div class="user-menu-role">${getIdentitySummary(me)}</div>
-    </div>
-    <div class="user-menu-links">
-      ${
-        developerAccess.allowed
-          ? `<a class="user-menu-link" href="/dashboard/" role="menuitem">Open dashboard</a>
-      <a class="user-menu-link" href="/reports/" role="menuitem">Open reports</a>`
-          : `<a class="user-menu-link" href="/feedback/" role="menuitem">Open feedback</a>
-      <a class="user-menu-link" href="/beta/apply/" role="menuitem">Open beta apply</a>`
-      }
-      <button class="user-menu-action is-danger" type="button" role="menuitem" data-auth-logout="true">Sign out</button>
-    </div>
+  const header = document.createElement("div");
+  header.className = "user-menu-header";
+  header.innerHTML = `
+    <div class="user-menu-name">${getDisplayName(me)}</div>
+    <div class="user-menu-email">${getEmail(me)}</div>
+    <div class="user-menu-role">${getIdentitySummary(me)}</div>
   `;
+
+  const overview = document.createElement("div");
+  overview.className = "user-menu-overview";
+  for (const row of getAccountOverviewRows(me)) {
+    const item = document.createElement("div");
+    item.className = "user-menu-overview-row";
+    item.innerHTML = `<span class="user-menu-overview-label">${row.label}</span><span class="user-menu-overview-value">${row.value}</span>`;
+    overview.appendChild(item);
+  }
+
+  const links = document.createElement("div");
+  links.className = "user-menu-links";
+  links.innerHTML = developerAccess.allowed
+    ? `<a class="user-menu-link" href="/dashboard/" role="menuitem">Open dashboard</a>
+      <a class="user-menu-link" href="/reports/" role="menuitem">Open reports</a>`
+    : `<a class="user-menu-link" href="/feedback/" role="menuitem">Open feedback</a>
+      <a class="user-menu-link" href="/beta/apply/" role="menuitem">Open beta apply</a>`;
+
+  if (creatorAllowed) {
+    links.insertAdjacentHTML(
+      "beforeend",
+      `<a class="user-menu-link" href="https://creator.streamsuites.app/" role="menuitem" target="_blank" rel="noreferrer">Creator Dashboard</a>`
+    );
+  }
+  if (adminAllowed) {
+    links.insertAdjacentHTML(
+      "beforeend",
+      `<a class="user-menu-link" href="https://admin.streamsuites.app/" role="menuitem" target="_blank" rel="noreferrer">Admin Dashboard</a>`
+    );
+  }
+  links.insertAdjacentHTML(
+    "beforeend",
+    `<button class="user-menu-action is-danger" type="button" role="menuitem" data-auth-logout="true">Sign out</button>`
+  );
+
+  menu.append(header, overview, links);
 
   trigger.addEventListener("click", () => {
     const nextOpen = menu.hidden;

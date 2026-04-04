@@ -395,6 +395,30 @@ textarea { min-height: 120px; resize: vertical; }
   font-size: 0.84rem;
   color: var(--muted);
 }
+.user-menu-overview {
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.025);
+}
+.user-menu-overview-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 0.74rem;
+}
+.user-menu-overview-label {
+  color: var(--muted);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.user-menu-overview-value {
+  text-align: right;
+  color: var(--text);
+}
 .user-menu-links {
   display: grid;
   gap: 8px;

@@ -1,5 +1,18 @@
 # Bump Notes
 
+## User Widget Dropdown Parity + Role-Aware Destinations - 2026-04-05
+
+### Technical Notes
+
+- Added the compact Creator-style account overview card pattern to the Developer Console dropdown in `js/auth.js` / `css/app.css` instead of redesigning the shell.
+- The console dropdown now reads the existing runtime `admin_access` and `creator_workspace_access` contracts alongside `developer_console_access`, so `Admin Dashboard` and `Creator Dashboard` links only render when the current session is actually authorized for those destinations.
+- No shared StreamSuites contract change was required for this repo pass; the console consumed the already-shipped access-class, display-tier, and capability payloads.
+
+### Human-Readable Notes
+
+- The Developer dropdown now shows the same compact account-summary card family as Creator.
+- Cross-surface links inside the console only appear when the signed-in account can really use them.
+
 ## Developer Access-Class Contract Adoption - 2026-04-05
 
 ### Technical Notes
