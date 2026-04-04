@@ -1,11 +1,16 @@
 import { fetchJson, fetchMe, setVoteToken } from "./api.js";
-import { initConsolePage } from "./auth.js";
+import { createInlineTurnstileController, initConsolePage } from "./auth.js";
 
 const requestListEl = document.getElementById("request-list");
 const requestStatusEl = document.getElementById("request-status");
 const formEl = document.getElementById("feedback-form");
 const formStatusEl = document.getElementById("feedback-form-status");
 const accountContextEl = document.getElementById("feedback-account-context");
+const turnstileController = createInlineTurnstileController({
+  panel: document.getElementById("feedback-turnstile-panel"),
+  slot: document.getElementById("feedback-turnstile"),
+  status: document.getElementById("feedback-turnstile-status"),
+});
 
 function renderRequests(items) {
   if (!requestListEl) return;
@@ -65,6 +70,12 @@ formEl?.addEventListener("submit", async (event) => {
   formStatusEl.className = "status-line";
   const formData = new FormData(formEl);
   try {
+    const turnstileToken = await turnstileController.requireToken();
+    if (turnstileController.isEnabled() && !turnstileToken) {
+      formStatusEl.textContent = "Complete the security check before submitting.";
+      formStatusEl.className = "status-line error";
+      return;
+    }
     await fetchJson("/api/public/feedback", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -75,18 +86,26 @@ formEl?.addEventListener("submit", async (event) => {
         summary: formData.get("summary"),
         contact_name: formData.get("contact_name"),
         contact_email: formData.get("contact_email"),
+        turnstile_token: turnstileToken,
         source_route: "/feedback/",
       }),
     });
     formEl.reset();
+    turnstileController.reset();
     formStatusEl.textContent = "Feedback submitted. It is now in the authoritative review queue.";
     formStatusEl.className = "status-line success";
   } catch (error) {
+    if (turnstileController.isEnabled()) {
+      turnstileController.reset();
+    }
     formStatusEl.textContent = error.message;
     formStatusEl.className = "status-line error";
   }
 });
 
 await initConsolePage({ navKey: "feedback" });
+await turnstileController.init().catch(() => {
+  // The controller handles inline status messaging when the widget cannot load.
+});
 await initFormAccountContext();
 await loadRequests();

@@ -196,3 +196,28 @@
 - `functions/api/[[path]].js`
 - `functions/auth/[[path]].js`
 - `functions/oauth/[[path]].js`
+
+## Task 3X - Turnstile Auth Rollout Verification - 2026-04-04
+
+### Technical Notes
+
+- Extended the developer-console Turnstile rollout beyond `/login` to the public `feedback` and `beta/apply` submission forms, using the existing inline panel styling plus a shared explicit-render helper exported from `js/auth.js`.
+- Both forms now request `/auth/turnstile/config`, require a fresh token before submit, and forward `turnstile_token` to the authoritative runtime endpoints `/api/public/feedback` and `/api/public/beta/apply`.
+- This closes the request-access and public-intake gap that the interrupted rollout left behind.
+
+### Human-Readable Notes
+
+- The developer console now protects public beta-application and feedback submissions with the same inline Cloudflare Turnstile approach already used on login, without redesigning those forms.
+
+### Files / Areas Touched
+
+- `beta/apply/index.html`
+- `feedback/index.html`
+- `js/auth.js`
+- `js/beta-apply.js`
+- `js/feedback.js`
+- `BUMP_NOTES.md`
+
+### Risks / Follow-Ups
+
+- Public intake abuse is reduced, not eliminated. Cloudflare WAF/rate limiting should still sit in front of the feedback, beta-apply, and auth-start endpoints.

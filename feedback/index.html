@@ -41,6 +41,10 @@
           <label class="field-wide"><span>Details</span><textarea name="body" placeholder="Share the feedback, request, or context that would help us review it." required></textarea></label>
           <label class="field"><span>Contact name</span><input name="contact_name" maxlength="160" placeholder="Optional" /></label>
           <label class="field"><span>Contact email</span><input name="contact_email" type="email" maxlength="320" placeholder="Optional" /></label>
+          <section id="feedback-turnstile-panel" class="turnstile-panel field-wide" hidden aria-live="polite">
+            <div id="feedback-turnstile" class="turnstile-slot"></div>
+            <p id="feedback-turnstile-status" class="turnstile-status"></p>
+          </section>
           <div class="field-wide"><div class="split-actions"><button class="solid-button" type="submit">Submit feedback</button></div><div id="feedback-form-status" class="status-line"></div></div>
         </form>
       </article>

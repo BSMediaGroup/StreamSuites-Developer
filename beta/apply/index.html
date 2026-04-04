@@ -40,6 +40,10 @@
           <label class="field-wide"><span>Relevant experience</span><textarea name="experience_summary" required placeholder="Creator tooling, SaaS UX, QA, operations, automation, support, or technical familiarity."></textarea></label>
           <label class="field-wide"><span>Testing environment</span><textarea name="testing_environment" required placeholder="Browsers, platforms, network conditions, streaming setup, devices, or edge cases you can cover."></textarea></label>
           <label class="field-wide"><span>Product usage context</span><textarea name="product_usage" placeholder="Optional context about your current workflow or creator tooling exposure."></textarea></label>
+          <section id="beta-apply-turnstile-panel" class="turnstile-panel field-wide" hidden aria-live="polite">
+            <div id="beta-apply-turnstile" class="turnstile-slot"></div>
+            <p id="beta-apply-turnstile-status" class="turnstile-status"></p>
+          </section>
           <div class="field-wide"><button class="solid-button" type="submit">Submit application</button><div id="beta-apply-status" class="status-line"></div></div>
         </form>
       </article>

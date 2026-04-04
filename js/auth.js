@@ -203,3 +203,145 @@ export async function initConsolePage({
 
   return { me, blocked: false, developerCapable };
 }
+
+export function createInlineTurnstileController({
+  panel,
+  slot,
+  status,
+  configUrl = "/auth/turnstile/config",
+} = {}) {
+  const TURNSTILE_SCRIPT_URL = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+  const state = {
+    enabled: false,
+    sitekey: "",
+    token: "",
+    widgetId: null,
+    configLoaded: false,
+    configPromise: null,
+    scriptPromise: null,
+  };
+
+  function setStatus(message, tone = "") {
+    if (!(status instanceof HTMLElement)) return;
+    status.textContent = String(message || "").trim();
+    status.dataset.tone = tone;
+  }
+
+  async function loadConfig() {
+    if (state.configLoaded) return state;
+    if (state.configPromise) return state.configPromise;
+
+    state.configPromise = fetch(configUrl, {
+      method: "GET",
+      credentials: "include",
+      cache: "no-store",
+      headers: { Accept: "application/json" },
+    })
+      .then(async (response) => {
+        if (!response.ok) throw new Error(`turnstile-config-${response.status}`);
+        return response.json();
+      })
+      .then((payload) => {
+        state.enabled =
+          payload?.enabled === true && typeof payload?.sitekey === "string" && payload.sitekey.trim().length > 0;
+        state.sitekey = state.enabled ? payload.sitekey.trim() : "";
+        state.configLoaded = true;
+        if (panel instanceof HTMLElement) {
+          panel.hidden = !state.enabled;
+        }
+        if (state.enabled) {
+          setStatus("Complete the security check to continue.");
+        }
+        return state;
+      })
+      .catch(() => {
+        state.enabled = false;
+        state.sitekey = "";
+        state.configLoaded = true;
+        if (panel instanceof HTMLElement) {
+          panel.hidden = true;
+        }
+        return state;
+      })
+      .finally(() => {
+        state.configPromise = null;
+      });
+
+    return state.configPromise;
+  }
+
+  async function loadScript() {
+    if (window.turnstile?.render) return window.turnstile;
+    if (state.scriptPromise) return state.scriptPromise;
+
+    state.scriptPromise = new Promise((resolve, reject) => {
+      const existing = document.querySelector(`script[src="${TURNSTILE_SCRIPT_URL}"]`);
+      if (existing) {
+        existing.addEventListener("load", () => resolve(window.turnstile), { once: true });
+        existing.addEventListener("error", () => reject(new Error("turnstile-script-load-failed")), { once: true });
+        return;
+      }
+
+      const script = document.createElement("script");
+      script.src = TURNSTILE_SCRIPT_URL;
+      script.async = true;
+      script.defer = true;
+      script.onload = () => resolve(window.turnstile);
+      script.onerror = () => reject(new Error("turnstile-script-load-failed"));
+      document.head.appendChild(script);
+    }).finally(() => {
+      state.scriptPromise = null;
+    });
+
+    return state.scriptPromise;
+  }
+
+  async function init() {
+    await loadConfig();
+    if (!state.enabled || !(slot instanceof HTMLElement)) return false;
+    if (state.widgetId !== null) return true;
+
+    const turnstile = await loadScript();
+    state.widgetId = turnstile.render(slot, {
+      sitekey: state.sitekey,
+      theme: "auto",
+      callback(token) {
+        state.token = String(token || "").trim();
+        setStatus("Security check ready.", "success");
+      },
+      "expired-callback"() {
+        state.token = "";
+        setStatus("The security check expired. Complete it again.", "error");
+      },
+      "error-callback"() {
+        state.token = "";
+        setStatus("Security check failed to load. Refresh and try again.", "error");
+      },
+    });
+    return true;
+  }
+
+  async function requireToken() {
+    await init();
+    if (!state.enabled) return "";
+    if (state.token) return state.token;
+    setStatus("Complete the security check to continue.", "error");
+    return "";
+  }
+
+  function reset() {
+    if (!state.enabled || state.widgetId === null || !window.turnstile?.reset) return;
+    state.token = "";
+    window.turnstile.reset(state.widgetId);
+    setStatus("Complete the security check to continue.");
+  }
+
+  return {
+    init,
+    reset,
+    requireToken,
+    isEnabled() {
+      return state.enabled;
+    },
+  };
+}
