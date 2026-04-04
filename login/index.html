@@ -30,46 +30,62 @@
           <h1>Sign in to the developer console</h1>
           <p class="muted">This repo uses the existing StreamSuites auth system. It does not own identity, role policy, or session authority.</p>
         </div>
-        <section id="login-access-gate" class="access-gate" hidden>
-          <div class="access-gate-summary">
-            <p id="login-access-message" class="access-gate-message"></p>
-            <button
-              id="login-access-toggle"
-              class="access-gate-toggle"
-              type="button"
-              aria-expanded="false"
-              aria-controls="login-access-form"
-              aria-label="Unlock temporary auth access"
-              hidden
-            >
-              <span class="access-gate-toggle-icon" aria-hidden="true"></span>
-            </button>
-          </div>
-          <form id="login-access-form" class="access-gate-form" hidden novalidate>
-            <label class="access-gate-field" for="login-access-code">
-              <span>Access code</span>
-              <input id="login-access-code" type="password" autocomplete="current-password" spellcheck="false" />
-            </label>
-            <button id="login-access-submit" class="access-gate-submit" type="submit">Unlock</button>
+        <div class="login-auth-stack">
+          <section id="login-access-gate" class="access-gate" hidden>
+            <div class="access-gate-summary">
+              <p id="login-access-message" class="access-gate-message"></p>
+              <button
+                id="login-access-toggle"
+                class="access-gate-toggle"
+                type="button"
+                aria-expanded="false"
+                aria-controls="login-access-form"
+                aria-label="Unlock temporary auth access"
+                hidden
+              >
+                <span class="access-gate-toggle-icon" aria-hidden="true"></span>
+              </button>
+            </div>
+            <form id="login-access-form" class="access-gate-form" hidden novalidate>
+              <label class="access-gate-field" for="login-access-code">
+                <span>Access code</span>
+                <input id="login-access-code" type="password" autocomplete="current-password" spellcheck="false" />
+              </label>
+              <button id="login-access-submit" class="access-gate-submit" type="submit">Unlock</button>
+            </form>
+            <p id="login-access-feedback" class="access-gate-feedback" hidden></p>
+          </section>
+          <section id="login-turnstile-panel" class="turnstile-panel" hidden aria-live="polite">
+            <div id="login-turnstile" class="turnstile-slot"></div>
+            <div id="login-turnstile-status" class="turnstile-status"></div>
+          </section>
+          <details class="surface-links" aria-label="Login to other surfaces">
+            <summary class="surface-links__summary">
+              <span class="surface-links__summary-label">Login to other surfaces</span>
+              <span class="surface-links__chevron" aria-hidden="true"></span>
+            </summary>
+            <div class="surface-links__list">
+              <a class="surface-links__link" href="https://streamsuites.app/public-login.html">
+                <span class="surface-links__icon surface-links__icon--public" aria-hidden="true"></span>
+                <span>Public</span>
+              </a>
+              <a class="surface-links__link" href="https://creator.streamsuites.app/auth/login.html">
+                <span class="surface-links__icon surface-links__icon--creator" aria-hidden="true"></span>
+                <span>Creator Dashboard</span>
+              </a>
+              <a class="surface-links__link" href="https://admin.streamsuites.app/auth/login.html">
+                <span class="surface-links__icon surface-links__icon--admin" aria-hidden="true"></span>
+                <span>Admin Dashboard</span>
+              </a>
+            </div>
+          </details>
+          <form id="password-login-form" class="form-grid">
+            <label class="field"><span>Email</span><input name="email" type="email" autocomplete="email" required /></label>
+            <label class="field"><span>Password</span><input name="password" type="password" autocomplete="current-password" required /></label>
+            <div class="field-wide"><button class="solid-button" type="submit">Continue with password</button></div>
           </form>
-          <p id="login-access-feedback" class="access-gate-feedback" hidden></p>
-        </section>
-        <section id="login-turnstile-panel" class="turnstile-panel" hidden aria-live="polite">
-          <div id="login-turnstile" class="turnstile-slot"></div>
-          <div id="login-turnstile-status" class="turnstile-status"></div>
-        </section>
-        <nav class="surface-links" aria-label="Alternate login surfaces">
-          <span class="surface-links__label">Elsewhere</span>
-          <a href="https://streamsuites.app/public-login.html">Public</a>
-          <a href="https://creator.streamsuites.app/auth/login.html">Creator</a>
-          <a href="https://admin.streamsuites.app/auth/login.html">Admin</a>
-        </nav>
-        <form id="password-login-form" class="form-grid">
-          <label class="field"><span>Email</span><input name="email" type="email" autocomplete="email" required /></label>
-          <label class="field"><span>Password</span><input name="password" type="password" autocomplete="current-password" required /></label>
-          <div class="field-wide"><button class="solid-button" type="submit">Continue with password</button></div>
-        </form>
-        <div id="login-status" class="status-line">Preparing sign-in links...</div>
+          <div id="login-status" class="status-line">Preparing sign-in links...</div>
+        </div>
       </article>
       <article class="detail-card">
         <div class="login-panel-title">

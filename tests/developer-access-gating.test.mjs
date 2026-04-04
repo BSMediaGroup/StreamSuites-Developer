@@ -23,3 +23,15 @@ test("shared auth helpers consume runtime developer console access state", () =>
   assert.match(authJs, /Open feedback/);
   assert.match(authJs, /developer-authorized StreamSuites account/);
 });
+
+test("developer login keeps the key icon path and collapsed alternate surfaces", () => {
+  const loginHtml = read("login/index.html");
+  const appCss = read("css/app.css");
+
+  assert.match(loginHtml, /Login to other surfaces/);
+  assert.doesNotMatch(loginHtml, /Elsewhere/);
+  assert.match(loginHtml, /Creator Dashboard/);
+  assert.match(loginHtml, /Admin Dashboard/);
+  assert.match(appCss, /assets\/icons\/ui\/key\.svg/);
+  assert.match(appCss, /surface-links__icon--public/);
+});

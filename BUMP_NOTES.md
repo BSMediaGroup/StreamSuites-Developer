@@ -242,6 +242,17 @@
 - Updated `js/auth.js` to consume the runtime-owned `developer_console_access` payload, redirect authenticated non-developer accounts away from protected console routes, and keep the signed-in menu from advertising protected console links to accounts that only have access to the public Developer routes.
 - Aligned the login page lockout control with the public auth treatment by changing the access-code action to the small key-style button, tightening Turnstile spacing, adding alternate-surface links, and adding a lightweight source-audit regression at `tests/developer-access-gating.test.mjs`.
 
+## Task 3Z - Auth Surface Login Repair Follow-up - 2026-04-05
+
+### Technical
+- Cleaned up the developer login vertical rhythm by grouping the existing access notice, Turnstile panel, alternate-surface links, password form, and status line into a dedicated auth stack without changing the auth logic or developer access model.
+- Restored the missing access-code button icon by pointing the masked icon treatment at the required `assets/icons/ui/key.svg`, and replaced the old `Elsewhere` strip with a collapsed `Login to other surfaces` section using new `ss-public.svg`, `ss-creator.svg`, `ss-admin.svg`, and `ss-developer.svg` assets.
+- Expanded `tests/developer-access-gating.test.mjs` to cover the new collapsed alternate-surface wording and the corrected key icon asset path.
+
+### Human
+- The Developer login page now breathes properly around the existing auth controls instead of feeling stacked too tightly.
+- The old flat selector text was removed because it read poorly and made the alternate destinations look like leftover debug links rather than intentional secondary navigation.
+
 ### Human-Readable Notes
 
 - Non-developer accounts no longer get to sit inside the protected Developer Console shell just because they have a valid StreamSuites session.

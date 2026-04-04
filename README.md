@@ -106,5 +106,5 @@ StreamSuites-Developer/
 ├── tests/
 │   └── developer-access-gating.test.mjs
 └── assets/
-    └── ... (existing shared brand/media asset tree)
+    └── ... (existing shared brand/media asset tree, including icons/ui/ss-admin.svg, ss-creator.svg, ss-developer.svg, ss-public.svg)
 ```
