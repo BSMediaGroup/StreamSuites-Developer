@@ -33,11 +33,11 @@
         <section id="login-access-gate" class="access-gate" hidden>
           <div class="access-gate-summary">
             <p id="login-access-message" class="access-gate-message"></p>
-            <button id="login-access-toggle" class="access-gate-toggle" type="button" aria-expanded="false" aria-controls="login-access-form" hidden>Use bypass code</button>
+            <button id="login-access-toggle" class="access-gate-toggle" type="button" aria-expanded="false" aria-controls="login-access-form" hidden>Use access code</button>
           </div>
           <form id="login-access-form" class="access-gate-form" hidden novalidate>
             <label class="access-gate-field" for="login-access-code">
-              <span>Bypass code</span>
+              <span>Access code</span>
               <input id="login-access-code" type="password" autocomplete="current-password" spellcheck="false" />
             </label>
             <button id="login-access-submit" class="access-gate-submit" type="submit">Unlock</button>
@@ -54,7 +54,7 @@
       <article class="detail-card">
         <div class="login-panel-title">
           <h2>Continue with OAuth</h2>
-          <p class="muted">The existing StreamSuites provider flow remains unchanged. This page only adds the same access-gate and provider parity used elsewhere on the platform.</p>
+          <p class="muted">The existing StreamSuites provider flow remains unchanged. This page uses the same access-code gate pattern as the public auth surface.</p>
         </div>
         <div class="provider-grid">
           <button class="ghost-button provider-button" type="button" data-provider="google"><img src="/assets/icons/google.svg" alt="" aria-hidden="true" />Continue with Google</button>

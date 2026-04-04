@@ -2,7 +2,7 @@ import { DEFAULT_AFTER_LOGIN_PATH } from "./config.js";
 
 const statusEl = document.getElementById("login-status");
 const formEl = document.getElementById("password-login-form");
-const providerButtons = document.querySelectorAll("[data-provider]");
+const providerButtons = Array.from(document.querySelectorAll("[data-provider]"));
 const accessGateEl = document.getElementById("login-access-gate");
 const accessMessageEl = document.getElementById("login-access-message");
 const accessToggleEl = document.getElementById("login-access-toggle");
@@ -10,21 +10,104 @@ const accessFormEl = document.getElementById("login-access-form");
 const accessCodeEl = document.getElementById("login-access-code");
 const accessSubmitEl = document.getElementById("login-access-submit");
 const accessFeedbackEl = document.getElementById("login-access-feedback");
-const returnTo =
+const ACCESS_STATE_URL = "/auth/access-state";
+const DEBUG_UNLOCK_URL = "/auth/debug/unlock";
+const LOGIN_PASSWORD_URL = "/auth/login/password";
+const REQUEST_TIMEOUT_MS = 12000;
+const AUTH_ACCESS_STORAGE_KEY = "streamsuites.console.authAccessGate";
+const AUTH_ACCESS_CACHE_MS = 30000;
+const AUTH_ACCESS_FALLBACK_MESSAGES = Object.freeze({
+  normal: "Authentication is operating normally.",
+  maintenance: "Authentication is temporarily unavailable while maintenance is in progress.",
+  development: "Authentication is temporarily limited while development access mode is active.",
+});
+const returnTo = normalizeReturnTo(
   new URLSearchParams(window.location.search).get("return_to") ||
-  new URL(DEFAULT_AFTER_LOGIN_PATH, window.location.origin).toString();
+    new URL(DEFAULT_AFTER_LOGIN_PATH, window.location.origin).toString(),
+);
 
 let accessState = {
+  available: true,
+  mode: "normal",
   gateActive: false,
   message: "",
   bypassEnabled: false,
   bypassUnlocked: false,
+  unlockExpiresAt: "",
 };
+let accessFormOpen = false;
+let accessStateLoadedAt = 0;
+let accessStatePromise = null;
+let passwordBusy = false;
 
 function providerPath(provider) {
   if (provider === "x") return "/auth/x/start";
   if (provider === "twitch") return "/oauth/twitch/start";
   return `/auth/login/${provider}`;
+}
+
+function normalizeReturnTo(value) {
+  if (!value || typeof value !== "string") {
+    return new URL(DEFAULT_AFTER_LOGIN_PATH, window.location.origin).toString();
+  }
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return new URL(DEFAULT_AFTER_LOGIN_PATH, window.location.origin).toString();
+  }
+  try {
+    const parsed = new URL(trimmed, window.location.origin);
+    if (parsed.origin !== window.location.origin) {
+      return new URL(DEFAULT_AFTER_LOGIN_PATH, window.location.origin).toString();
+    }
+    return parsed.toString();
+  } catch (_error) {
+    return new URL(DEFAULT_AFTER_LOGIN_PATH, window.location.origin).toString();
+  }
+}
+
+function fallbackAccessMessage(mode) {
+  return AUTH_ACCESS_FALLBACK_MESSAGES[mode] || AUTH_ACCESS_FALLBACK_MESSAGES.normal;
+}
+
+function clearAccessUnlockState() {
+  try {
+    window.sessionStorage.removeItem(AUTH_ACCESS_STORAGE_KEY);
+  } catch (_error) {
+    // Ignore storage failures.
+  }
+}
+
+function readAccessUnlockState() {
+  try {
+    const raw = window.sessionStorage.getItem(AUTH_ACCESS_STORAGE_KEY);
+    if (!raw) return { active: false, expiresAt: "" };
+    const parsed = JSON.parse(raw);
+    const expiresAt = typeof parsed?.expiresAt === "string" ? parsed.expiresAt.trim() : "";
+    const expiresAtMs = Date.parse(expiresAt);
+    if (!expiresAt || !Number.isFinite(expiresAtMs) || expiresAtMs <= Date.now()) {
+      clearAccessUnlockState();
+      return { active: false, expiresAt: "" };
+    }
+    return { active: true, expiresAt };
+  } catch (_error) {
+    clearAccessUnlockState();
+    return { active: false, expiresAt: "" };
+  }
+}
+
+function persistAccessUnlockState(expiresAt) {
+  if (typeof expiresAt !== "string" || !expiresAt.trim()) return;
+  try {
+    window.sessionStorage.setItem(
+      AUTH_ACCESS_STORAGE_KEY,
+      JSON.stringify({
+        unlocked: true,
+        expiresAt: expiresAt.trim(),
+      }),
+    );
+  } catch (_error) {
+    // Ignore storage failures.
+  }
 }
 
 function setFeedback(message, tone = "") {
@@ -35,60 +118,166 @@ function setFeedback(message, tone = "") {
   accessFeedbackEl.dataset.tone = tone;
 }
 
-function syncAccessUi() {
-  if (!accessGateEl) return;
-  accessGateEl.hidden = !accessState.gateActive;
-  if (accessMessageEl) {
-    accessMessageEl.textContent = accessState.gateActive ? accessState.message : "";
-  }
-  if (accessToggleEl) {
-    accessToggleEl.hidden = !(accessState.gateActive && accessState.bypassEnabled && !accessState.bypassUnlocked);
-    accessToggleEl.textContent = accessState.bypassUnlocked ? "Unlocked" : "Use bypass code";
-  }
+function isAccessBlocked() {
+  return accessState.gateActive && !accessState.bypassUnlocked;
+}
+
+function setPasswordBusy(busy) {
+  passwordBusy = Boolean(busy);
+  const submitButton = formEl?.querySelector('button[type="submit"]');
+  if (!(submitButton instanceof HTMLButtonElement)) return;
+  submitButton.disabled = passwordBusy || isAccessBlocked();
+  submitButton.textContent = passwordBusy ? "Signing in..." : "Continue with password";
+}
+
+function syncProviderAvailability() {
+  providerButtons.forEach((button) => {
+    if (!(button instanceof HTMLButtonElement)) return;
+    button.disabled = isAccessBlocked();
+    button.classList.toggle("is-disabled", isAccessBlocked());
+    button.setAttribute("aria-disabled", isAccessBlocked() ? "true" : "false");
+  });
+}
+
+function setAccessFormOpen(open) {
+  accessFormOpen = Boolean(open && accessState.gateActive && accessState.bypassEnabled && !accessState.bypassUnlocked);
   if (accessFormEl) {
-    const open = accessToggleEl?.getAttribute("aria-expanded") === "true";
-    accessFormEl.hidden = !(open && accessState.gateActive && accessState.bypassEnabled && !accessState.bypassUnlocked);
+    accessFormEl.hidden = !accessFormOpen;
+  }
+  if (accessToggleEl instanceof HTMLButtonElement) {
+    accessToggleEl.setAttribute("aria-expanded", accessFormOpen ? "true" : "false");
+    accessToggleEl.classList.toggle("is-active", accessFormOpen);
+  }
+  if (accessFormOpen && accessCodeEl instanceof HTMLInputElement) {
+    window.setTimeout(() => accessCodeEl.focus(), 0);
   }
 }
 
-function normalizeAccessState(payload) {
+function syncAccessUi() {
+  if (!accessGateEl) return;
+  accessGateEl.hidden = !accessState.gateActive;
+  accessGateEl.classList.toggle("is-unlocked", accessState.bypassUnlocked);
+  if (accessMessageEl) {
+    accessMessageEl.textContent = accessState.gateActive ? accessState.message : "";
+  }
+  if (accessToggleEl instanceof HTMLButtonElement) {
+    accessToggleEl.hidden = !(accessState.gateActive && accessState.bypassEnabled);
+  }
+  if (!accessState.gateActive || !accessState.bypassEnabled || accessState.bypassUnlocked) {
+    setAccessFormOpen(false);
+  } else if (accessFormEl) {
+    accessFormEl.hidden = !accessFormOpen;
+  }
+  syncProviderAvailability();
+  setPasswordBusy(passwordBusy);
+  if (accessState.gateActive && accessState.bypassUnlocked) {
+    statusEl.textContent = "Access unlocked. Continue with sign in.";
+    statusEl.className = "status-line success";
+    return;
+  }
+  if (accessState.gateActive) {
+    statusEl.textContent = accessState.bypassEnabled
+      ? "Normal login is paused. Unlock access to continue."
+      : "Normal login is paused right now.";
+    statusEl.className = "status-line";
+    return;
+  }
+  statusEl.textContent = "Choose a sign-in method.";
+  statusEl.className = "status-line";
+}
+
+function normalizeAccessState(payload, available = true) {
   const rawMode = typeof payload?.mode === "string" ? payload.mode.trim().toLowerCase() : "";
-  const gateActive = rawMode === "maintenance" || rawMode === "development";
+  const mode = rawMode === "maintenance" || rawMode === "development" ? rawMode : "normal";
+  const gateActive = mode !== "normal";
+  const bypassEnabled = gateActive && payload?.bypass_enabled === true;
+  const unlockState = bypassEnabled ? readAccessUnlockState() : { active: false, expiresAt: "" };
+  if (!gateActive || !bypassEnabled) {
+    clearAccessUnlockState();
+  }
   return {
+    available,
+    mode,
     gateActive,
     message:
       typeof payload?.message === "string" && payload.message.trim()
         ? payload.message.trim()
         : gateActive
-          ? "Authentication is temporarily limited."
-          : "",
-    bypassEnabled: gateActive && payload?.bypass_enabled === true,
-    bypassUnlocked: false,
-    unlockExpiresAt: "",
+          ? fallbackAccessMessage(mode)
+          : fallbackAccessMessage("normal"),
+    bypassEnabled,
+    bypassUnlocked: bypassEnabled && unlockState.active,
+    unlockExpiresAt: unlockState.expiresAt,
   };
 }
 
-async function loadAccessState() {
+async function fetchWithTimeout(resource, options = {}, timeoutMs = REQUEST_TIMEOUT_MS) {
+  const controller = new AbortController();
+  const timeoutHandle = window.setTimeout(() => controller.abort(), timeoutMs);
   try {
-    const response = await fetch("/auth/access-state", {
-      method: "GET",
-      credentials: "include",
-      cache: "no-store",
-      headers: { Accept: "application/json" },
+    return await fetch(resource, {
+      ...options,
+      signal: controller.signal,
     });
-    if (!response.ok) throw new Error(`access-state-${response.status}`);
-    const payload = await response.json();
-    accessState = normalizeAccessState(payload);
-  } catch (_error) {
-    accessState = { gateActive: false, message: "", bypassEnabled: false, bypassUnlocked: false };
+  } finally {
+    window.clearTimeout(timeoutHandle);
   }
-  syncAccessUi();
+}
+
+async function parseAccessStateResponse(response) {
+  if (!response.ok) {
+    throw new Error(`access-state-${response.status}`);
+  }
+  const contentType = String(response.headers.get("content-type") || "").toLowerCase();
+  if (!contentType.includes("application/json")) {
+    throw new Error("access-state-non-json");
+  }
+  return response.json();
+}
+
+async function loadAccessState(force = false) {
+  const shouldUseCache =
+    !force &&
+    accessStateLoadedAt > 0 &&
+    Date.now() - accessStateLoadedAt < AUTH_ACCESS_CACHE_MS;
+  if (shouldUseCache) {
+    syncAccessUi();
+    return accessState;
+  }
+  if (accessStatePromise) return accessStatePromise;
+
+  accessStatePromise = fetchWithTimeout(ACCESS_STATE_URL, {
+    method: "GET",
+    credentials: "include",
+    cache: "no-store",
+    redirect: "error",
+    headers: { Accept: "application/json" },
+  })
+    .then((response) => parseAccessStateResponse(response))
+    .then((payload) => {
+      accessState = normalizeAccessState(payload, true);
+      accessStateLoadedAt = Date.now();
+      syncAccessUi();
+      return accessState;
+    })
+    .catch(() => {
+      accessState = normalizeAccessState(null, false);
+      accessStateLoadedAt = Date.now();
+      syncAccessUi();
+      return accessState;
+    })
+    .finally(() => {
+      accessStatePromise = null;
+    });
+
+  return accessStatePromise;
 }
 
 async function unlockAccessGate(code) {
-  const response = await fetch("/auth/debug/unlock", {
+  const response = await fetchWithTimeout(DEBUG_UNLOCK_URL, {
     method: "POST",
     credentials: "include",
+    cache: "no-store",
     headers: {
       Accept: "application/json",
       "Content-Type": "application/json",
@@ -102,25 +291,31 @@ async function unlockAccessGate(code) {
     error.payload = payload;
     throw error;
   }
+  const expiresAt = typeof payload?.expires_at === "string" ? payload.expires_at.trim() : "";
+  if (expiresAt) {
+    persistAccessUnlockState(expiresAt);
+  }
   accessState = {
     ...normalizeAccessState({
-      mode: payload?.mode,
-      message: payload?.message,
+      mode: payload?.mode || accessState.mode,
+      message: payload?.message || accessState.message,
       bypass_enabled: true,
     }),
     bypassUnlocked: true,
-    unlockExpiresAt: payload?.expires_at || "",
+    unlockExpiresAt: expiresAt || accessState.unlockExpiresAt,
   };
+  accessStateLoadedAt = Date.now();
+  setAccessFormOpen(false);
+  setFeedback("Access unlocked.", "success");
   syncAccessUi();
 }
 
 async function ensureAccessAvailable() {
-  if (!accessState.gateActive || accessState.bypassUnlocked) return true;
+  const nextAccessState = await loadAccessState(false);
+  if (!nextAccessState.gateActive || nextAccessState.bypassUnlocked) return true;
   if (accessState.bypassEnabled) {
-    accessToggleEl?.setAttribute("aria-expanded", "true");
-    syncAccessUi();
-    accessCodeEl?.focus();
-    setFeedback("Enter the bypass code to continue.", "error");
+    setAccessFormOpen(true);
+    setFeedback("Enter the access code to continue.", "error");
   } else if (statusEl) {
     statusEl.textContent = accessState.message || "Authentication is temporarily unavailable.";
     statusEl.className = "status-line error";
@@ -140,17 +335,15 @@ providerButtons.forEach((button) => {
 });
 
 accessToggleEl?.addEventListener("click", () => {
-  const expanded = accessToggleEl.getAttribute("aria-expanded") === "true";
-  accessToggleEl.setAttribute("aria-expanded", expanded ? "false" : "true");
   setFeedback("", "");
-  syncAccessUi();
+  setAccessFormOpen(!accessFormOpen);
 });
 
 accessFormEl?.addEventListener("submit", async (event) => {
   event.preventDefault();
   const code = accessCodeEl?.value.trim();
   if (!code) {
-    setFeedback("Enter the bypass code.", "error");
+    setFeedback("Enter the access code.", "error");
     return;
   }
   if (accessSubmitEl instanceof HTMLButtonElement) {
@@ -161,13 +354,10 @@ accessFormEl?.addEventListener("submit", async (event) => {
   try {
     await unlockAccessGate(code);
     if (accessCodeEl) accessCodeEl.value = "";
-    accessToggleEl?.setAttribute("aria-expanded", "false");
-    syncAccessUi();
-    setFeedback("Access unlocked. You can continue with sign in.", "success");
   } catch (error) {
     const message =
       error?.status === 403
-        ? "Invalid bypass code."
+        ? "Invalid access code."
         : error?.status === 429
           ? "Too many attempts. Please wait and try again."
           : "Unlock is unavailable right now.";
@@ -186,10 +376,12 @@ formEl?.addEventListener("submit", async (event) => {
   statusEl.textContent = "Signing in...";
   statusEl.className = "status-line";
   const formData = new FormData(formEl);
+  setPasswordBusy(true);
   try {
-    const response = await fetch("/auth/login/password", {
+    const response = await fetchWithTimeout(LOGIN_PASSWORD_URL, {
       method: "POST",
       credentials: "include",
+      cache: "no-store",
       headers: { "Content-Type": "application/json", Accept: "application/json" },
       body: JSON.stringify({
         email: formData.get("email"),
@@ -203,10 +395,11 @@ formEl?.addEventListener("submit", async (event) => {
     }
     window.location.assign(returnTo);
   } catch (error) {
-    statusEl.textContent = error.message;
+    statusEl.textContent = error?.name === "AbortError" ? "Login timed out. Please try again." : error.message;
     statusEl.className = "status-line error";
+  } finally {
+    setPasswordBusy(false);
   }
 });
 
-await loadAccessState();
-statusEl.textContent = "Choose a sign-in method.";
+await loadAccessState(true);

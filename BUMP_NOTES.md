@@ -2,6 +2,27 @@
 
 ## CURRENT VER= 0.4.2-alpha / PENDING VER= 0.4.3-alpha
 
+### Developer Login Access-Code Gate Fix - 2026-04-04
+
+#### Technical Notes
+
+- Root-caused the missing Developer login access-code control to the repo-local auth proxy: `functions/auth/[[path]].js` allowed password and OAuth starts, but it did not allow `/auth/access-state` or `/auth/debug/unlock`, so the page could not load or execute the real public-style auth gate flow after deploy.
+- Reworked `login/index.html` and `js/login.js` so the Developer `/login` page now uses the public auth surface's real access-code pattern instead of the earlier custom bypass variant: the control is labeled `Access code`, gate state is fetched with cached `/auth/access-state` reads, unlocks persist in session storage until expiry, and password/OAuth starts are disabled or reopened behind the gate exactly as the public flow does.
+- Updated the narrow login-specific gate styling in `css/app.css` so the unlocked/open states and disabled OAuth buttons match the Developer surface without changing unrelated shell or layout work.
+
+#### Human-Readable Notes
+
+- The Developer login page now shows the real access-code gate behavior instead of a decorative or disconnected bypass variant.
+- Password login, OAuth sign-in, and `return_to` handoff still use the existing routes, but they now wait on the same unlock step the public login uses when auth is gated.
+
+#### Files / Areas Touched
+
+- `BUMP_NOTES.md`
+- `css/app.css`
+- `functions/auth/[[path]].js`
+- `js/login.js`
+- `login/index.html`
+
 ### Developer Console IA / Shell / Login Parity Polish Pass - 2026-04-04
 
 #### Technical Notes

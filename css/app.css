@@ -422,6 +422,10 @@ textarea { min-height: 120px; resize: vertical; }
   justify-content: flex-start;
   padding-inline: 14px;
 }
+.provider-button.is-disabled {
+  opacity: 0.58;
+  cursor: not-allowed;
+}
 .provider-button img {
   width: 18px;
   height: 18px;
@@ -454,6 +458,10 @@ textarea { min-height: 120px; resize: vertical; }
   background: rgba(255, 255, 255, 0.03);
 }
 .access-gate[hidden] { display: none; }
+.access-gate.is-unlocked {
+  border-color: rgba(120, 215, 165, 0.26);
+  background: rgba(120, 215, 165, 0.08);
+}
 .access-gate-summary {
   display: flex;
   align-items: flex-start;
@@ -473,6 +481,10 @@ textarea { min-height: 120px; resize: vertical; }
   padding: 10px 14px;
   cursor: pointer;
   white-space: nowrap;
+}
+.access-gate-toggle.is-active {
+  border-color: rgba(241, 141, 88, 0.38);
+  background: var(--accent-soft);
 }
 .access-gate-form {
   display: grid;
