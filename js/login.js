@@ -1,5 +1,9 @@
 import { fetchMe } from "./api.js";
-import { DEFAULT_AFTER_LOGIN_PATH } from "./config.js";
+import {
+  DEFAULT_AFTER_LOGIN_PATH,
+  buildLoginSuccessPageUrl,
+  normalizeConsoleReturnTo,
+} from "./config.js";
 
 const statusEl = document.getElementById("login-status");
 const formEl = document.getElementById("password-login-form");
@@ -22,10 +26,11 @@ const AUTH_ACCESS_FALLBACK_MESSAGES = Object.freeze({
   maintenance: "Authentication is temporarily unavailable while maintenance is in progress.",
   development: "Authentication is temporarily limited while development access mode is active.",
 });
-const returnTo = normalizeReturnTo(
+const returnTo = normalizeConsoleReturnTo(
   new URLSearchParams(window.location.search).get("return_to") ||
     new URL(DEFAULT_AFTER_LOGIN_PATH, window.location.origin).toString(),
 );
+const loginSuccessUrl = buildLoginSuccessPageUrl(returnTo);
 
 let accessState = {
   available: true,
@@ -45,25 +50,6 @@ function providerPath(provider) {
   if (provider === "x") return "/auth/x/start";
   if (provider === "twitch") return "/oauth/twitch/start";
   return `/auth/login/${provider}`;
-}
-
-function normalizeReturnTo(value) {
-  if (!value || typeof value !== "string") {
-    return new URL(DEFAULT_AFTER_LOGIN_PATH, window.location.origin).toString();
-  }
-  const trimmed = value.trim();
-  if (!trimmed) {
-    return new URL(DEFAULT_AFTER_LOGIN_PATH, window.location.origin).toString();
-  }
-  try {
-    const parsed = new URL(trimmed, window.location.origin);
-    if (parsed.origin !== window.location.origin) {
-      return new URL(DEFAULT_AFTER_LOGIN_PATH, window.location.origin).toString();
-    }
-    return parsed.toString();
-  } catch (_error) {
-    return new URL(DEFAULT_AFTER_LOGIN_PATH, window.location.origin).toString();
-  }
 }
 
 function fallbackAccessMessage(mode) {
@@ -358,7 +344,7 @@ providerButtons.forEach((button) => {
     const provider = button.getAttribute("data-provider");
     const url = new URL(providerPath(provider), window.location.origin);
     url.searchParams.set("surface", "creator");
-    url.searchParams.set("return_to", returnTo);
+    url.searchParams.set("return_to", loginSuccessUrl);
     window.location.assign(url.toString());
   });
 });
@@ -436,7 +422,7 @@ formEl?.addEventListener("submit", async (event) => {
     if (!authenticated) {
       statusEl.textContent = "Finishing login...";
     }
-    window.location.assign(returnTo);
+    window.location.assign(loginSuccessUrl);
   } catch (error) {
     statusEl.textContent = error?.name === "AbortError" ? "Login timed out. Please try again." : error.message;
     statusEl.className = "status-line error";

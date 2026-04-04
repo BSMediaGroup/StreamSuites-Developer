@@ -2,6 +2,27 @@
 
 ## CURRENT VER= 0.4.2-alpha / PENDING VER= 0.4.3-alpha
 
+### Developer Console Post-Login Loop Fix - 2026-04-04
+
+#### Technical Notes
+
+- Root-caused the remaining console login loop to a surface-handoff mismatch rather than a bad credential exchange: the Developer repo preserved `return_to`, but it sent OAuth starts directly back to protected console routes and its `/login-success` page only used a timed redirect instead of confirming the newly-issued session first.
+- Reworked the Developer console handoff to match the proven Creator/Public pattern. `js/login.js` now sends OAuth providers to `/login-success/` with the original protected console target nested in `return_to`, and password login now lands on the same completion page after the existing short `/api/me` settle check.
+- Replaced the old `js/auth-success.js` timer-only redirect with a real `/auth/session` confirmation step that retries briefly on expected cookie-settle misses, preserves the requested console route, and only falls back to `/login/` when the runtime still reports no valid authenticated session.
+- Added console-local return-target normalization helpers in `js/config.js` so auth pages cannot become their own final `return_to` target and accidentally re-enter the login loop.
+
+#### Human-Readable Notes
+
+- Password and OAuth login now complete through a real session-confirmation handoff before the console enters `/dashboard`, `/reports`, `/keys`, or other protected routes.
+- `/login-success` is now a real auth completion page rather than a blind timed bounce.
+
+#### Files / Areas Touched
+
+- `BUMP_NOTES.md`
+- `js/auth-success.js`
+- `js/config.js`
+- `js/login.js`
+
 ### Developer Login Redirect-Mode Regression Fix - 2026-04-04
 
 #### Technical Notes
