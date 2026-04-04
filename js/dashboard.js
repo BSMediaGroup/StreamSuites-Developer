@@ -10,6 +10,7 @@ const page = await initConsolePage({
 if (!page.blocked) {
   const me = page.me || {};
   document.getElementById("dashboard-identity").textContent = me.display_name || me.email || "Authenticated account";
-  document.getElementById("dashboard-role").textContent = me.role || "account";
-  document.getElementById("dashboard-tier").textContent = me.effective_tier?.tier_label || me.tier || "core";
+  document.getElementById("dashboard-role").textContent = me.access_class || me.role || "account";
+  document.getElementById("dashboard-tier").textContent =
+    me.effective_tier?.display_tier_label || me.effective_tier?.tier_label || me.tier || "core";
 }

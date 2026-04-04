@@ -18,6 +18,8 @@ test("protected console pages opt into developer-required gating", () => {
 test("shared auth helpers consume runtime developer console access state", () => {
   const authJs = read("js/auth.js");
   assert.match(authJs, /developer_console_access/);
+  assert.match(authJs, /access_class/);
+  assert.match(authJs, /display_tier_label/);
   assert.match(authJs, /Open feedback/);
   assert.match(authJs, /developer-authorized StreamSuites account/);
 });

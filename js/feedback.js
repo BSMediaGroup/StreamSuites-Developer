@@ -61,7 +61,7 @@ async function initFormAccountContext() {
     accountContextEl.innerHTML = `<p class="muted">You can submit anonymously, or sign in to attach account context automatically.</p>`;
     return;
   }
-  accountContextEl.innerHTML = `<div class="inline-account"><strong>${me.display_name || "Signed in"}</strong><div class="muted">${me.email || "Authenticated StreamSuites account"} · ${me.role || "account"}</div></div>`;
+  accountContextEl.innerHTML = `<div class="inline-account"><strong>${me.display_name || "Signed in"}</strong><div class="muted">${me.email || "Authenticated StreamSuites account"} · ${me.access_class || me.role || "account"}</div></div>`;
 }
 
 formEl?.addEventListener("submit", async (event) => {

@@ -17,11 +17,19 @@ function getEmail(me) {
 }
 
 function getRole(me) {
-  return me?.role || "account";
+  return me?.access_class || me?.role || "account";
 }
 
 function getTier(me) {
-  return me?.effective_tier?.tier_label || me?.tier || "core";
+  return me?.effective_tier?.display_tier_label || me?.effective_tier?.tier_label || me?.tier || "core";
+}
+
+function getIdentitySummary(me) {
+  const role = String(getRole(me) || "").trim();
+  const tier = String(getTier(me) || "").trim();
+  if (!tier) return role || "account";
+  if (role && role.toLowerCase() === tier.toLowerCase()) return role;
+  return [role || "account", tier].join(" · ");
 }
 
 function getAvatarUrl(me) {
@@ -112,7 +120,7 @@ function renderSignedInSlot(slot, me) {
 
   const copy = document.createElement("span");
   copy.className = "user-copy";
-  copy.innerHTML = `<span class="user-name">${getDisplayName(me)}</span><span class="user-meta">${getRole(me)} · ${getTier(me)}</span>`;
+  copy.innerHTML = `<span class="user-name">${getDisplayName(me)}</span><span class="user-meta">${getIdentitySummary(me)}</span>`;
 
   trigger.append(avatar, copy);
 
@@ -125,7 +133,7 @@ function renderSignedInSlot(slot, me) {
     <div class="user-menu-header">
       <div class="user-menu-name">${getDisplayName(me)}</div>
       <div class="user-menu-email">${getEmail(me)}</div>
-      <div class="user-menu-role">${getRole(me)} · ${getTier(me)}</div>
+      <div class="user-menu-role">${getIdentitySummary(me)}</div>
     </div>
     <div class="user-menu-links">
       ${

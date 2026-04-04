@@ -1,5 +1,17 @@
 # Bump Notes
 
+## Developer Access-Class Contract Adoption - 2026-04-05
+
+### Technical Notes
+
+- Updated `js/auth.js` and `js/dashboard.js` to consume the new runtime `access_class` plus `effective_tier.display_tier_label` contract so protected-console gating keeps relying on runtime-owned developer authorization while the console shell stops reading the old tier shortcut as identity.
+- The Developer Console menu/account summaries now derive their visible identity string from access class plus backend display tier, collapsing duplicate `Developer · Developer` output down to one label when the display chip matches the access class.
+- Added a focused node regression proving the shared auth helper now expects `access_class` and display-tier data alongside the existing `developer_console_access` payload.
+
+### Human-Readable Notes
+
+- Protected Developer routes still honor the runtime developer-access decision, but the console now presents Developer identity from the new account-class model instead of the retired fake plan tier.
+
 ## CURRENT VER= 0.4.2-alpha / PENDING VER= 0.4.3-alpha
 
 ### Developer Console First-Class Surface Auth Fix - 2026-04-04
