@@ -2,6 +2,28 @@
 
 ## CURRENT VER= 0.4.2-alpha / PENDING VER= 0.4.3-alpha
 
+### Developer Console First-Class Surface Auth Fix - 2026-04-04
+
+#### Technical Notes
+
+- Root-caused the live `/login-success/` confirmation loop to the remaining cross-repo surface mismatch, not to missing credentials on the fetch itself: `js/auth-success.js` was already calling `GET /auth/session` with `credentials: "include"`, but the Developer repo still identified login starts as `surface: "creator"` while the runtime still treated `console.streamsuites.app` as creator-origin auth traffic instead of a first-class console surface.
+- Updated the Developer login entry points to speak the correct surface contract. `js/config.js` now exports the console auth surface key, and `js/login.js` now sends both password and OAuth login starts with `surface=console` while keeping the existing `/login` and `/login-success` route model plus nested `return_to` handling intact.
+- Hardened the same-origin Pages auth proxy in `functions/_shared/auth-api-proxy.js` so it forwards every upstream `Set-Cookie` header instead of collapsing auth responses down to a single cookie line. That keeps password and OAuth handoffs honest when the runtime returns multiple cookies during login/callback cleanup.
+- Added concise browser-side auth diagnostics in `js/auth-success.js` for the confirmation request target, final status, and rejection reason so future session-bootstrap regressions can be identified from the console without adding noisy debug-only scaffolding.
+
+#### Human-Readable Notes
+
+- The Developer Console now identifies itself as the Developer Console during login instead of pretending to be the creator surface.
+- Auth handoffs keep all cookies that the runtime returns, and `/login-success/` now records a useful reason when session confirmation still fails.
+
+#### Files / Areas Touched
+
+- `BUMP_NOTES.md`
+- `functions/_shared/auth-api-proxy.js`
+- `js/auth-success.js`
+- `js/config.js`
+- `js/login.js`
+
 ### Developer Console Post-Login Loop Fix - 2026-04-04
 
 #### Technical Notes

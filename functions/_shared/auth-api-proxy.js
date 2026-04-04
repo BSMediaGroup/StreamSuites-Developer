@@ -23,8 +23,15 @@ function cloneResponseHeaders(sourceHeaders) {
     if (name.toLowerCase() === "set-cookie") continue;
     headers.append(name, value);
   }
-  const setCookie = sourceHeaders.get("Set-Cookie");
-  if (setCookie) headers.append("Set-Cookie", setCookie);
+  if (typeof sourceHeaders.getSetCookie === "function") {
+    const setCookies = sourceHeaders.getSetCookie();
+    for (const value of setCookies) {
+      headers.append("Set-Cookie", value);
+    }
+  } else {
+    const setCookie = sourceHeaders.get("Set-Cookie");
+    if (setCookie) headers.append("Set-Cookie", setCookie);
+  }
   headers.set("Cache-Control", "no-store");
   return headers;
 }

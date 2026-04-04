@@ -1,5 +1,6 @@
 import { fetchMe } from "./api.js";
 import {
+  AUTH_LOGIN_SURFACE,
   DEFAULT_AFTER_LOGIN_PATH,
   buildLoginSuccessPageUrl,
   normalizeConsoleReturnTo,
@@ -343,7 +344,7 @@ providerButtons.forEach((button) => {
     if (!(await ensureAccessAvailable())) return;
     const provider = button.getAttribute("data-provider");
     const url = new URL(providerPath(provider), window.location.origin);
-    url.searchParams.set("surface", "creator");
+    url.searchParams.set("surface", AUTH_LOGIN_SURFACE);
     url.searchParams.set("return_to", loginSuccessUrl);
     window.location.assign(url.toString());
   });
@@ -402,7 +403,7 @@ formEl?.addEventListener("submit", async (event) => {
       body: JSON.stringify({
         email: formData.get("email"),
         password: formData.get("password"),
-        surface: "creator",
+        surface: AUTH_LOGIN_SURFACE,
       }),
     });
     const payload = await response.json().catch(() => null);

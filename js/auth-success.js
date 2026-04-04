@@ -1,4 +1,5 @@
 import {
+  AUTH_LOGIN_SURFACE,
   DEFAULT_AFTER_LOGIN_PATH,
   buildLoginPageUrl,
   normalizeConsoleReturnTo,
@@ -107,23 +108,46 @@ async function confirmSession() {
 
 async function finalizeAuth() {
   setStatus("Finalising session...");
+  console.info("[Developer][Auth] session_confirm_request", {
+    surface: AUTH_LOGIN_SURFACE,
+    target: SESSION_URL,
+    next,
+  });
   try {
     const { response, payload } = await confirmSession();
     const sessionValid =
       response?.ok === true &&
       (payload?.ok === true || payload?.authenticated === true || payload?.session_valid === true);
     if (!sessionValid) {
+      console.warn("[Developer][Auth] session_confirm_failed", {
+        surface: AUTH_LOGIN_SURFACE,
+        status: response?.status ?? 0,
+        reason: resolveReason(payload, response) || null,
+        reason_enum: resolveReasonEnum(payload, response) || null,
+        next,
+      });
       setStatus("Session confirmation failed. Returning to login...", "error");
       window.setTimeout(() => {
         window.location.assign(buildLoginPageUrl(next));
       }, 900);
       return;
     }
+    console.info("[Developer][Auth] session_confirmed", {
+      surface: AUTH_LOGIN_SURFACE,
+      status: response.status,
+      next,
+    });
     setStatus("Session confirmed. Entering console...", "success");
     window.setTimeout(() => {
       window.location.assign(next);
     }, 250);
-  } catch (_error) {
+  } catch (error) {
+    console.warn("[Developer][Auth] session_confirm_failed", {
+      surface: AUTH_LOGIN_SURFACE,
+      status: 0,
+      reason: error?.name || "request_failed",
+      next,
+    });
     setStatus("Session confirmation failed. Returning to login...", "error");
     window.setTimeout(() => {
       window.location.assign(buildLoginPageUrl(next));

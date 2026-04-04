@@ -1,5 +1,6 @@
 export const DEFAULT_AFTER_LOGIN_PATH = "/dashboard/";
 export const VOTE_TOKEN_STORAGE_KEY = "ss_console_vote_token";
+export const AUTH_LOGIN_SURFACE = "console";
 const AUTH_PATHS = new Set(["/login", "/login/", "/login-success", "/login-success/"]);
 
 export function absoluteConsoleUrl(pathname = "/") {
