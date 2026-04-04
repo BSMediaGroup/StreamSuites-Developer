@@ -33,6 +33,19 @@ function buildAvatarFallback(name) {
   return source ? source.slice(0, 1).toUpperCase() : "S";
 }
 
+function getDeveloperConsoleAccess(me) {
+  const access = me?.developer_console_access;
+  return access && typeof access === "object"
+    ? access
+    : {
+        allowed: false,
+        route_allowed: false,
+        route_public: false,
+        public_routes: [],
+        protected_routes: [],
+      };
+}
+
 async function logoutAndRedirect() {
   try {
     await fetch("/auth/logout", {
@@ -70,6 +83,7 @@ function renderSignedOutSlot(slot) {
 
 function renderSignedInSlot(slot, me) {
   slot.innerHTML = "";
+  const developerAccess = getDeveloperConsoleAccess(me);
 
   const widget = document.createElement("div");
   widget.className = "user-widget";
@@ -114,8 +128,13 @@ function renderSignedInSlot(slot, me) {
       <div class="user-menu-role">${getRole(me)} · ${getTier(me)}</div>
     </div>
     <div class="user-menu-links">
-      <a class="user-menu-link" href="/dashboard/" role="menuitem">Open dashboard</a>
-      <a class="user-menu-link" href="/reports/" role="menuitem">Open reports</a>
+      ${
+        developerAccess.allowed
+          ? `<a class="user-menu-link" href="/dashboard/" role="menuitem">Open dashboard</a>
+      <a class="user-menu-link" href="/reports/" role="menuitem">Open reports</a>`
+          : `<a class="user-menu-link" href="/feedback/" role="menuitem">Open feedback</a>
+      <a class="user-menu-link" href="/beta/apply/" role="menuitem">Open beta apply</a>`
+      }
       <button class="user-menu-action is-danger" type="button" role="menuitem" data-auth-logout="true">Sign out</button>
     </div>
   `;
@@ -185,23 +204,21 @@ export async function initConsolePage({
     window.location.assign(buildLoginPageUrl(buildReturnToPath() || DEFAULT_AFTER_LOGIN_PATH));
     return { me, blocked: true };
   }
-
-  const developerCapable = Boolean(
-    me?.authenticated &&
-    (me?.role === "admin" ||
-      me?.admin_access?.allowed ||
-      me?.badge_state?.applicable?.some?.((item) => item?.key === "developer"))
-  );
+  const developerAccess = getDeveloperConsoleAccess(me);
+  const developerCapable = me?.authenticated && developerAccess.allowed === true;
 
   if (developerRequired && !developerCapable) {
     if (statusEl) {
-      statusEl.textContent = "This route requires a developer-capable StreamSuites account.";
+      statusEl.textContent = "This route requires a developer-authorized StreamSuites account. Redirecting...";
       statusEl.classList.add("error");
     }
+    window.setTimeout(() => {
+      window.location.assign("/feedback/");
+    }, 180);
     return { me, blocked: true };
   }
 
-  return { me, blocked: false, developerCapable };
+  return { me, blocked: false, developerCapable, developerAccess };
 }
 
 export function createInlineTurnstileController({

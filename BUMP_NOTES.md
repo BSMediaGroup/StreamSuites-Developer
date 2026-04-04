@@ -221,3 +221,32 @@
 ### Risks / Follow-Ups
 
 - Public intake abuse is reduced, not eliminated. Cloudflare WAF/rate limiting should still sit in front of the feedback, beta-apply, and auth-start endpoints.
+
+## Task 3Y - Developer Console Access Repair Pass - 2026-04-05
+
+### Technical Notes
+
+- Reworked the protected Developer Console page bootstrap so `/dashboard`, `/reports`, `/reports/submit`, and `/keys` now opt into explicit developer-required gating instead of only checking for any authenticated session.
+- Updated `js/auth.js` to consume the runtime-owned `developer_console_access` payload, redirect authenticated non-developer accounts away from protected console routes, and keep the signed-in menu from advertising protected console links to accounts that only have access to the public Developer routes.
+- Aligned the login page lockout control with the public auth treatment by changing the access-code action to the small key-style button, tightening Turnstile spacing, adding alternate-surface links, and adding a lightweight source-audit regression at `tests/developer-access-gating.test.mjs`.
+
+### Human-Readable Notes
+
+- Non-developer accounts no longer get to sit inside the protected Developer Console shell just because they have a valid StreamSuites session.
+- The Developer login page now matches the public access-code treatment more closely and exposes the same subtle links to the other login surfaces.
+
+### Files / Areas Touched
+
+- `login/index.html`
+- `css/app.css`
+- `js/auth.js`
+- `js/dashboard.js`
+- `js/reports.js`
+- `js/keys.js`
+- `tests/developer-access-gating.test.mjs`
+- `README.md`
+- `BUMP_NOTES.md`
+
+### Risks / Follow-Ups
+
+- This pass still relies on the current shared StreamSuites identity model. The later dedicated Developer identity/admin-model task should revisit how protected-console eligibility is granted and presented, but it no longer needs to fix the immediate shell-access leak first.

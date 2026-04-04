@@ -103,6 +103,8 @@ StreamSuites-Developer/
 │   ├── index.html
 │   └── submit/
 │       └── index.html
+├── tests/
+│   └── developer-access-gating.test.mjs
 └── assets/
     └── ... (existing shared brand/media asset tree)
 ```

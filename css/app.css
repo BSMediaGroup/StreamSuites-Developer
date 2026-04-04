@@ -451,11 +451,11 @@ textarea { min-height: 120px; resize: vertical; }
 
 .access-gate {
   display: grid;
-  gap: 14px;
-  padding: 18px;
-  border-radius: 20px;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 18px;
   border: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(255, 255, 255, 0.025);
 }
 .access-gate[hidden] { display: none; }
 .access-gate.is-unlocked {
@@ -482,6 +482,23 @@ textarea { min-height: 120px; resize: vertical; }
   cursor: pointer;
   white-space: nowrap;
 }
+.access-gate-toggle {
+  width: 42px;
+  min-width: 42px;
+  height: 42px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.access-gate-toggle-icon {
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+  background: currentColor;
+  mask: url("/assets/icons/key.svg") center / contain no-repeat;
+  -webkit-mask: url("/assets/icons/key.svg") center / contain no-repeat;
+}
 .access-gate-toggle.is-active {
   border-color: rgba(241, 141, 88, 0.38);
   background: var(--accent-soft);
@@ -507,11 +524,11 @@ textarea { min-height: 120px; resize: vertical; }
 
 .turnstile-panel {
   display: grid;
-  gap: 10px;
-  padding: 14px 16px;
+  gap: 6px;
+  padding: 10px 12px;
   border-radius: 18px;
-  border: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.025);
 }
 .turnstile-panel[hidden] { display: none; }
 .turnstile-slot {
@@ -521,10 +538,36 @@ textarea { min-height: 120px; resize: vertical; }
   min-height: 20px;
   margin: 0;
   color: var(--muted);
-  font-size: 0.92rem;
+  font-size: 0.84rem;
 }
 .turnstile-status[data-tone="success"] { color: var(--ok); }
 .turnstile-status[data-tone="error"] { color: var(--danger); }
+
+.surface-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  margin: 10px 0 2px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.surface-links__label {
+  letter-spacing: 0.08em;
+  opacity: 0.7;
+  text-transform: uppercase;
+}
+
+.surface-links a {
+  color: var(--text);
+  text-decoration: none;
+}
+
+.surface-links a:hover,
+.surface-links a:focus-visible {
+  text-decoration: underline;
+}
 
 .console-app {
   min-height: 100vh;

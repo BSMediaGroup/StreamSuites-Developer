@@ -33,7 +33,17 @@
         <section id="login-access-gate" class="access-gate" hidden>
           <div class="access-gate-summary">
             <p id="login-access-message" class="access-gate-message"></p>
-            <button id="login-access-toggle" class="access-gate-toggle" type="button" aria-expanded="false" aria-controls="login-access-form" hidden>Use access code</button>
+            <button
+              id="login-access-toggle"
+              class="access-gate-toggle"
+              type="button"
+              aria-expanded="false"
+              aria-controls="login-access-form"
+              aria-label="Unlock temporary auth access"
+              hidden
+            >
+              <span class="access-gate-toggle-icon" aria-hidden="true"></span>
+            </button>
           </div>
           <form id="login-access-form" class="access-gate-form" hidden novalidate>
             <label class="access-gate-field" for="login-access-code">
@@ -48,6 +58,12 @@
           <div id="login-turnstile" class="turnstile-slot"></div>
           <div id="login-turnstile-status" class="turnstile-status"></div>
         </section>
+        <nav class="surface-links" aria-label="Alternate login surfaces">
+          <span class="surface-links__label">Elsewhere</span>
+          <a href="https://streamsuites.app/public-login.html">Public</a>
+          <a href="https://creator.streamsuites.app/auth/login.html">Creator</a>
+          <a href="https://admin.streamsuites.app/auth/login.html">Admin</a>
+        </nav>
         <form id="password-login-form" class="form-grid">
           <label class="field"><span>Email</span><input name="email" type="email" autocomplete="email" required /></label>
           <label class="field"><span>Password</span><input name="password" type="password" autocomplete="current-password" required /></label>

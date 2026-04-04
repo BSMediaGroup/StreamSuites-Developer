@@ -1,6 +1,11 @@
 import { initConsolePage } from "./auth.js";
 
-const page = await initConsolePage({ navKey: "dashboard", authRequired: true, statusTargetId: "dashboard-status" });
+const page = await initConsolePage({
+  navKey: "dashboard",
+  authRequired: true,
+  developerRequired: true,
+  statusTargetId: "dashboard-status",
+});
 
 if (!page.blocked) {
   const me = page.me || {};
