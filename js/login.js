@@ -1,3 +1,4 @@
+import { fetchMe } from "./api.js";
 import { DEFAULT_AFTER_LOGIN_PATH } from "./config.js";
 
 const statusEl = document.getElementById("login-status");
@@ -67,6 +68,21 @@ function normalizeReturnTo(value) {
 
 function fallbackAccessMessage(mode) {
   return AUTH_ACCESS_FALLBACK_MESSAGES[mode] || AUTH_ACCESS_FALLBACK_MESSAGES.normal;
+}
+
+function parseErrorMessage(payload, fallback) {
+  const candidates = [
+    payload?.error,
+    payload?.message,
+    payload?.data?.error,
+    payload?.data?.message,
+  ];
+  for (const candidate of candidates) {
+    if (typeof candidate === "string" && candidate.trim()) {
+      return candidate.trim();
+    }
+  }
+  return fallback;
 }
 
 function clearAccessUnlockState() {
@@ -222,6 +238,19 @@ async function fetchWithTimeout(resource, options = {}, timeoutMs = REQUEST_TIME
   } finally {
     window.clearTimeout(timeoutHandle);
   }
+}
+
+async function waitForSession(maxAttempts = 6) {
+  for (let index = 0; index < maxAttempts; index += 1) {
+    try {
+      const me = await fetchMe();
+      if (me?.authenticated) return true;
+    } catch (_error) {
+      // Continue retry loop.
+    }
+    await new Promise((resolve) => window.setTimeout(resolve, 150 + index * 120));
+  }
+  return false;
 }
 
 async function parseAccessStateResponse(response) {
@@ -382,6 +411,7 @@ formEl?.addEventListener("submit", async (event) => {
       method: "POST",
       credentials: "include",
       cache: "no-store",
+      redirect: "manual",
       headers: { "Content-Type": "application/json", Accept: "application/json" },
       body: JSON.stringify({
         email: formData.get("email"),
@@ -389,9 +419,22 @@ formEl?.addEventListener("submit", async (event) => {
         surface: "creator",
       }),
     });
-    if (![200, 302, 303, 307, 308].includes(response.status) && response.type !== "opaqueredirect") {
-      const payload = await response.json().catch(() => null);
-      throw new Error(payload?.error || payload?.message || "Password login failed");
+    const payload = await response.json().catch(() => null);
+    if (response.status === 401) {
+      throw new Error("Invalid credentials.");
+    }
+    if (response.status === 429) {
+      throw new Error("Too many login attempts. Please wait and try again.");
+    }
+    if (payload?.verification_required === true) {
+      throw new Error("Check your email to verify your account before logging in.");
+    }
+    if (response.status >= 400) {
+      throw new Error(parseErrorMessage(payload, "Unable to log in right now."));
+    }
+    const authenticated = await waitForSession();
+    if (!authenticated) {
+      statusEl.textContent = "Finishing login...";
     }
     window.location.assign(returnTo);
   } catch (error) {

@@ -2,6 +2,24 @@
 
 ## CURRENT VER= 0.4.2-alpha / PENDING VER= 0.4.3-alpha
 
+### Developer Login Redirect-Mode Regression Fix - 2026-04-04
+
+#### Technical Notes
+
+- Root-caused the live `NetworkError when attempting to fetch resource.` regression on the Developer `/login` password submit to `js/login.js`: the page still posted to `POST /auth/login/password` with a normal fetch, but the auth runtime finalizes successful password login with an HTTP `302` plus session cookie, so the browser fetch followed the redirect chain instead of treating the response as an auth handoff.
+- Kept the new access-code gate UI and unlock flow intact while changing the password-login branch to the same safe pattern used by the public auth surface: `redirect: "manual"` on the password fetch, explicit handling for `401` / `429` / verification-required responses, and short session polling through `/api/me` before navigating back to `return_to`.
+- Preserved the existing Developer route structure, same-origin auth proxy usage, OAuth/provider button wiring, and `surface: "creator"` payload semantics; only the password-submit success handling changed.
+
+#### Human-Readable Notes
+
+- The access-code control remains on the Developer login page and still unlocks login when auth is gated.
+- Password login no longer relies on a fetch-followed redirect that browsers can surface as a network error on success.
+
+#### Files / Areas Touched
+
+- `BUMP_NOTES.md`
+- `js/login.js`
+
 ### Developer Login Access-Code Gate Fix - 2026-04-04
 
 #### Technical Notes
