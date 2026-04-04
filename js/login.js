@@ -16,7 +16,12 @@ const accessFormEl = document.getElementById("login-access-form");
 const accessCodeEl = document.getElementById("login-access-code");
 const accessSubmitEl = document.getElementById("login-access-submit");
 const accessFeedbackEl = document.getElementById("login-access-feedback");
+const turnstilePanelEl = document.getElementById("login-turnstile-panel");
+const turnstileSlotEl = document.getElementById("login-turnstile");
+const turnstileStatusEl = document.getElementById("login-turnstile-status");
 const ACCESS_STATE_URL = "/auth/access-state";
+const TURNSTILE_CONFIG_URL = "/auth/turnstile/config";
+const TURNSTILE_SCRIPT_URL = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
 const DEBUG_UNLOCK_URL = "/auth/debug/unlock";
 const LOGIN_PASSWORD_URL = "/auth/login/password";
 const REQUEST_TIMEOUT_MS = 12000;
@@ -46,6 +51,15 @@ let accessFormOpen = false;
 let accessStateLoadedAt = 0;
 let accessStatePromise = null;
 let passwordBusy = false;
+const turnstileState = {
+  enabled: false,
+  sitekey: "",
+  token: "",
+  widgetId: null,
+  configLoaded: false,
+  configPromise: null,
+  scriptPromise: null,
+};
 
 function providerPath(provider) {
   if (provider === "x") return "/auth/x/start";
@@ -70,6 +84,139 @@ function parseErrorMessage(payload, fallback) {
     }
   }
   return fallback;
+}
+
+function setTurnstileStatus(message, tone = "") {
+  if (!turnstileStatusEl) return;
+  const text = String(message || "").trim();
+  turnstileStatusEl.textContent = text;
+  turnstileStatusEl.dataset.tone = tone;
+}
+
+function isTurnstileBlocked() {
+  return turnstileState.enabled && !turnstileState.token;
+}
+
+async function loadTurnstileConfig() {
+  if (turnstileState.configLoaded) return turnstileState;
+  if (turnstileState.configPromise) return turnstileState.configPromise;
+
+  turnstileState.configPromise = fetchWithTimeout(TURNSTILE_CONFIG_URL, {
+    method: "GET",
+    credentials: "include",
+    cache: "no-store",
+    headers: { Accept: "application/json" },
+  })
+    .then(async (response) => {
+      if (!response.ok) throw new Error(`turnstile-config-${response.status}`);
+      return response.json();
+    })
+    .then((payload) => {
+      turnstileState.enabled = payload?.enabled === true && typeof payload?.sitekey === "string" && payload.sitekey.trim().length > 0;
+      turnstileState.sitekey = turnstileState.enabled ? payload.sitekey.trim() : "";
+      turnstileState.configLoaded = true;
+      if (turnstilePanelEl) {
+        turnstilePanelEl.hidden = !turnstileState.enabled;
+      }
+      if (turnstileState.enabled) {
+        setTurnstileStatus("Complete the security check to continue.");
+      }
+      return turnstileState;
+    })
+    .catch(() => {
+      turnstileState.enabled = false;
+      turnstileState.sitekey = "";
+      turnstileState.configLoaded = true;
+      if (turnstilePanelEl) {
+        turnstilePanelEl.hidden = true;
+      }
+      return turnstileState;
+    })
+    .finally(() => {
+      turnstileState.configPromise = null;
+    });
+
+  return turnstileState.configPromise;
+}
+
+async function loadTurnstileScript() {
+  if (window.turnstile?.render) return window.turnstile;
+  if (turnstileState.scriptPromise) return turnstileState.scriptPromise;
+
+  turnstileState.scriptPromise = new Promise((resolve, reject) => {
+    const existing = document.querySelector(`script[src="${TURNSTILE_SCRIPT_URL}"]`);
+    if (existing) {
+      existing.addEventListener("load", () => resolve(window.turnstile), { once: true });
+      existing.addEventListener("error", () => reject(new Error("turnstile-script-load-failed")), { once: true });
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.src = TURNSTILE_SCRIPT_URL;
+    script.async = true;
+    script.defer = true;
+    script.onload = () => resolve(window.turnstile);
+    script.onerror = () => reject(new Error("turnstile-script-load-failed"));
+    document.head.appendChild(script);
+  }).finally(() => {
+    turnstileState.scriptPromise = null;
+  });
+
+  return turnstileState.scriptPromise;
+}
+
+async function ensureTurnstileRendered() {
+  await loadTurnstileConfig();
+  if (!turnstileState.enabled || !turnstileSlotEl) {
+    syncProviderAvailability();
+    setPasswordBusy(passwordBusy);
+    return false;
+  }
+  if (turnstileState.widgetId !== null) return true;
+
+  const turnstile = await loadTurnstileScript();
+  turnstileState.widgetId = turnstile.render(turnstileSlotEl, {
+    sitekey: turnstileState.sitekey,
+    theme: "auto",
+    callback(token) {
+      turnstileState.token = String(token || "").trim();
+      setTurnstileStatus("Security check ready.", "success");
+      syncProviderAvailability();
+      setPasswordBusy(passwordBusy);
+    },
+    "expired-callback"() {
+      turnstileState.token = "";
+      setTurnstileStatus("The security check expired. Complete it again.", "error");
+      syncProviderAvailability();
+      setPasswordBusy(passwordBusy);
+    },
+    "error-callback"() {
+      turnstileState.token = "";
+      setTurnstileStatus("Security check failed to load. Refresh and try again.", "error");
+      syncProviderAvailability();
+      setPasswordBusy(passwordBusy);
+    },
+  });
+  syncProviderAvailability();
+  setPasswordBusy(passwordBusy);
+  return true;
+}
+
+function resetTurnstile() {
+  if (!turnstileState.enabled || turnstileState.widgetId === null || !window.turnstile?.reset) return;
+  turnstileState.token = "";
+  window.turnstile.reset(turnstileState.widgetId);
+  setTurnstileStatus("Complete the security check to continue.");
+  syncProviderAvailability();
+  setPasswordBusy(passwordBusy);
+}
+
+async function ensureTurnstileToken() {
+  await ensureTurnstileRendered();
+  if (!turnstileState.enabled) return "";
+  if (turnstileState.token) return turnstileState.token;
+  setTurnstileStatus("Complete the security check to continue.", "error");
+  return "";
 }
 
 function clearAccessUnlockState() {
@@ -129,16 +276,17 @@ function setPasswordBusy(busy) {
   passwordBusy = Boolean(busy);
   const submitButton = formEl?.querySelector('button[type="submit"]');
   if (!(submitButton instanceof HTMLButtonElement)) return;
-  submitButton.disabled = passwordBusy || isAccessBlocked();
+  submitButton.disabled = passwordBusy || isAccessBlocked() || isTurnstileBlocked();
   submitButton.textContent = passwordBusy ? "Signing in..." : "Continue with password";
 }
 
 function syncProviderAvailability() {
   providerButtons.forEach((button) => {
     if (!(button instanceof HTMLButtonElement)) return;
-    button.disabled = isAccessBlocked();
-    button.classList.toggle("is-disabled", isAccessBlocked());
-    button.setAttribute("aria-disabled", isAccessBlocked() ? "true" : "false");
+    const disabled = isAccessBlocked() || isTurnstileBlocked();
+    button.disabled = disabled;
+    button.classList.toggle("is-disabled", disabled);
+    button.setAttribute("aria-disabled", disabled ? "true" : "false");
   });
 }
 
@@ -342,10 +490,15 @@ async function ensureAccessAvailable() {
 providerButtons.forEach((button) => {
   button.addEventListener("click", async () => {
     if (!(await ensureAccessAvailable())) return;
+    const turnstileToken = await ensureTurnstileToken();
+    if (turnstileState.enabled && !turnstileToken) return;
     const provider = button.getAttribute("data-provider");
     const url = new URL(providerPath(provider), window.location.origin);
     url.searchParams.set("surface", AUTH_LOGIN_SURFACE);
     url.searchParams.set("return_to", loginSuccessUrl);
+    if (turnstileToken) {
+      url.searchParams.set("turnstile_token", turnstileToken);
+    }
     window.location.assign(url.toString());
   });
 });
@@ -389,6 +542,8 @@ accessFormEl?.addEventListener("submit", async (event) => {
 formEl?.addEventListener("submit", async (event) => {
   event.preventDefault();
   if (!(await ensureAccessAvailable())) return;
+  const turnstileToken = await ensureTurnstileToken();
+  if (turnstileState.enabled && !turnstileToken) return;
   statusEl.textContent = "Signing in...";
   statusEl.className = "status-line";
   const formData = new FormData(formEl);
@@ -404,6 +559,7 @@ formEl?.addEventListener("submit", async (event) => {
         email: formData.get("email"),
         password: formData.get("password"),
         surface: AUTH_LOGIN_SURFACE,
+        turnstile_token: turnstileToken,
       }),
     });
     const payload = await response.json().catch(() => null);
@@ -428,8 +584,14 @@ formEl?.addEventListener("submit", async (event) => {
     statusEl.textContent = error?.name === "AbortError" ? "Login timed out. Please try again." : error.message;
     statusEl.className = "status-line error";
   } finally {
+    if (turnstileState.enabled) {
+      resetTurnstile();
+    }
     setPasswordBusy(false);
   }
 });
 
+await ensureTurnstileRendered().catch(() => {
+  setTurnstileStatus("Security check failed to load. Refresh and try again.", "error");
+});
 await loadAccessState(true);

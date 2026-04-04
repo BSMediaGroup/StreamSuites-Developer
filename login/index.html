@@ -44,6 +44,10 @@
           </form>
           <p id="login-access-feedback" class="access-gate-feedback" hidden></p>
         </section>
+        <section id="login-turnstile-panel" class="turnstile-panel" hidden aria-live="polite">
+          <div id="login-turnstile" class="turnstile-slot"></div>
+          <div id="login-turnstile-status" class="turnstile-status"></div>
+        </section>
         <form id="password-login-form" class="form-grid">
           <label class="field"><span>Email</span><input name="email" type="email" autocomplete="email" required /></label>
           <label class="field"><span>Password</span><input name="password" type="password" autocomplete="current-password" required /></label>

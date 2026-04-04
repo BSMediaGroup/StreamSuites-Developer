@@ -505,6 +505,27 @@ textarea { min-height: 120px; resize: vertical; }
 .access-gate-feedback[data-tone="success"] { color: var(--ok); }
 .access-gate-feedback[data-tone="error"] { color: var(--danger); }
 
+.turnstile-panel {
+  display: grid;
+  gap: 10px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.03);
+}
+.turnstile-panel[hidden] { display: none; }
+.turnstile-slot {
+  min-height: 66px;
+}
+.turnstile-status {
+  min-height: 20px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+.turnstile-status[data-tone="success"] { color: var(--ok); }
+.turnstile-status[data-tone="error"] { color: var(--danger); }
+
 .console-app {
   min-height: 100vh;
   display: grid;
