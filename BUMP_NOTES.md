@@ -1,5 +1,17 @@
 # Bump Notes
 
+## Emergency Login Turnstile Placement Hotfix - 2026-04-06
+
+### Technical Notes
+
+- Reordered `login/index.html` so the Developer login surface now keeps the password form first, then the alternate-surface links, then the inline Turnstile block near the bottom of the auth stack.
+- Capped the dedicated Developer Turnstile helper/status text at `9px` in `css/app.css` to match the shared emergency auth-surface requirement without shrinking unrelated console copy.
+
+### Human-Readable Notes
+
+- Developer login still uses the same existing auth flow.
+- The security check now sits lower in the form stack and uses the same discreet tiny helper text as the other login surfaces.
+
 ## User Widget Dropdown Parity + Role-Aware Destinations - 2026-04-05
 
 ### Technical Notes
