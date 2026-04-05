@@ -565,10 +565,10 @@ textarea { min-height: 120px; resize: vertical; }
   min-height: 66px;
 }
 .turnstile-status {
-  min-height: 20px;
+  min-height: 10px;
   margin: 0;
   color: var(--muted);
-  font-size: 0.84rem;
+  font-size: 0.6rem;
 }
 .turnstile-status[data-tone="success"] { color: var(--ok); }
 .turnstile-status[data-tone="error"] { color: var(--danger); }
