@@ -172,15 +172,9 @@
             <div class="form-grid report-section-grid">
               <label class="field">
                 <span class="field-heading"><span class="field-label">Surface</span><span class="field-badge is-required">Required</span></span>
-                <span class="field-help">Primary StreamSuites surface where the issue occurred.</span>
-                <select name="context_surface" data-other-select="surface" required>
+                <span class="field-help">Primary StreamSuites surface or shared subsystem where the issue occurred.</span>
+                <select id="context-surface-select" name="context_surface" data-other-select="surface" required>
                   <option value="">Select surface</option>
-                  <option value="developer_console">Developer Console</option>
-                  <option value="public_feedback">Public feedback</option>
-                  <option value="beta_program">Beta program</option>
-                  <option value="login_flow">Login / session flow</option>
-                  <option value="api_only">API-only interaction</option>
-                  <option value="other">Other</option>
                 </select>
               </label>
               <div id="surface-other-wrap" class="conditional-field hidden">

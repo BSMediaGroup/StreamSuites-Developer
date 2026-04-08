@@ -1,5 +1,22 @@
 # Bump Notes
 
+## Developer Report Surface Catalog Expansion - 2026-04-09
+
+### Technical Notes
+
+- Root-caused the too-small `/reports/submit` Surface selector to the page itself: `reports/submit/index.html` hard-coded a six-option shortlist, and `js/report-submit.js` mirrored only that tiny set through a small local label map. The backend was not enforcing that shortlist; `StreamSuites/auth_api.py` already accepts the developer report platform context as sanitized text plus structured JSON.
+- Added `js/report-surface-catalog.mjs` as the new report-surface source of truth and expanded the catalog into grouped first-class product surfaces drawn from the actual StreamSuites repo map: Public, FindMeHere, Docs, Creator, Admin, Developer, LiveChat, Desktop Admin, Alerts App, shared platform systems, and runtime/core targets.
+- Updated `reports/submit/index.html` so the Surface field now mounts from the shared grouped catalog instead of carrying the old inline shortlist, while preserving the existing `context_surface` field name and the conditional `Other` follow-up input.
+- Updated `js/report-submit.js` to populate the grouped selector at runtime, reuse the shared label lookup during payload flattening, and preserve the existing submission contract for `platform_details` and `structured_metadata`.
+- Expanded `tests/developer-access-gating.test.mjs` with a direct catalog import check so the repo now asserts the grouped surface inventory, representative cross-product entries, and the preserved `Other` branch.
+- No shared StreamSuites runtime/auth contract change was required for this pass; the runtime already stores the selected surface as free-form sanitized submission context.
+
+### Human-Readable Notes
+
+- The developer report form now exposes the real StreamSuites product surface map instead of a tiny hand-picked shortlist.
+- Shared platform and runtime/internal targets are now available alongside the web surfaces and desktop apps.
+- Report submission behavior stays compatible with the current backend flow, including the existing `Other` path.
+
 ## Standalone Route Shell Containment Fix - 2026-04-09
 
 ### Technical Notes

@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 
 const repoRoot = process.cwd();
 
@@ -94,13 +95,53 @@ test("standalone report submit stays outside the authenticated shell and uses st
   assert.match(html, /name="environment_os"/);
   assert.match(html, /name="environment_browser"/);
   assert.match(html, /name="context_surface"/);
+  assert.match(html, /id="context-surface-select"/);
   assert.match(html, /name="context_route"/);
   assert.match(html, /field-badge is-required/);
   assert.match(html, /field-badge is-optional/);
 });
 
+test("developer report surface catalog covers the full product surface map with grouped options and Other", async () => {
+  const moduleUrl = pathToFileURL(path.join(repoRoot, "js/report-surface-catalog.mjs")).href;
+  const { REPORT_SURFACE_GROUPS, REPORT_SURFACE_LABELS } = await import(moduleUrl);
+
+  assert.equal(REPORT_SURFACE_GROUPS.length, 5);
+  assert.deepEqual(
+    REPORT_SURFACE_GROUPS.map((group) => group.label),
+    [
+      "Public and viewer-facing surfaces",
+      "Creator, admin, and developer surfaces",
+      "Apps and extension surfaces",
+      "Shared platform systems",
+      "Core runtime and internal systems",
+    ],
+  );
+
+  for (const surfaceKey of [
+    "public_site",
+    "findmehere_profiles",
+    "docs_site",
+    "creator_dashboard",
+    "admin_dashboard",
+    "developer_console",
+    "livechat_launcher",
+    "desktop_admin_winforms",
+    "alerts_app",
+    "auth_api",
+    "shared_state_exports",
+    "runtime_core",
+    "runtime_livechat_backend",
+  ]) {
+    assert.ok(REPORT_SURFACE_LABELS[surfaceKey], `${surfaceKey} should be present in the report surface catalog`);
+  }
+
+  assert.equal(REPORT_SURFACE_LABELS.other, "Other");
+});
+
 test("report submission script maps structured fields back into the existing flat payload contract", () => {
   const reportSubmitJs = read("js/report-submit.js");
+  assert.match(reportSubmitJs, /populateReportSurfaceSelect/);
+  assert.match(reportSubmitJs, /getReportSurfaceLabel/);
   assert.match(reportSubmitJs, /function buildDeveloperReportPayload/);
   assert.match(reportSubmitJs, /function parseExtraMetadata/);
   assert.match(reportSubmitJs, /affected_area:\s*affectedAreaSummary\.join/);

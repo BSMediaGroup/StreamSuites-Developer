@@ -1,5 +1,6 @@
 import { fetchJson } from "./api.js";
 import { initStandalonePage } from "./auth.js";
+import { getReportSurfaceLabel, populateReportSurfaceSelect } from "./report-surface-catalog.mjs";
 
 const AFFECTED_AREA_LABELS = {
   dashboard_shell: "Dashboard shell",
@@ -13,11 +14,6 @@ const AFFECTED_AREA_LABELS = {
 };
 
 const VALUE_LABELS = {
-  developer_console: "Developer Console",
-  public_feedback: "Public feedback",
-  beta_program: "Beta program",
-  login_flow: "Login / session flow",
-  api_only: "API-only interaction",
   streamsuites_web: "StreamSuites web",
   browser_extension: "Browser extension",
   desktop: "Desktop",
@@ -40,6 +36,8 @@ const platformSelect = formEl?.elements.namedItem("context_platform");
 const platformOtherWrap = document.getElementById("platform-other-wrap");
 const platformOtherInput = formEl?.elements.namedItem("context_platform_other");
 
+populateReportSurfaceSelect(surfaceSelect);
+
 const page = await initStandalonePage({
   navKey: "report-submit",
   authRequired: true,
@@ -48,7 +46,12 @@ const page = await initStandalonePage({
 });
 
 function normalizeLabel(value) {
-  return VALUE_LABELS[value] || AFFECTED_AREA_LABELS[value] || String(value || "").replace(/_/g, " ");
+  return (
+    getReportSurfaceLabel(value) ||
+    VALUE_LABELS[value] ||
+    AFFECTED_AREA_LABELS[value] ||
+    String(value || "").replace(/_/g, " ")
+  );
 }
 
 function setConditionalFieldState(wrap, input, active) {
