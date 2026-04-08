@@ -1,5 +1,23 @@
 # Bump Notes
 
+## Admin-Shell Parity + Structured Developer Report Form - 2026-04-09
+
+### Technical Notes
+
+- Replaced the ad-hoc Developer authenticated shell markup on `dashboard/index.html`, `reports/index.html`, and `keys/index.html` with the same Admin Dashboard shell pattern: `#app` grid shell, `#app-nav` sidebar, `#app-header` topbar, collapse toggle, fixed topbar title slot, and `#app-footer`.
+- Ported the Admin-style authenticated account widget treatment into `js/auth.js` / `css/app.css`, including the compact pill trigger, overview card dropdown, collapse-state persistence, topbar refresh action, and direct clickable sidebar `li[data-view]` items.
+- Kept `/feedback`, `/beta`, `/beta/apply`, `/reports/submit`, `/login`, and `/login-success` outside the authenticated shell; only the protected `/dashboard`, `/reports`, and `/keys` routes moved onto the Admin-constructed shell.
+- Rebuilt `reports/submit/index.html` into structured sections with explicit required/optional markers, checkbox-driven affected-area selection, conditional `Other` fields, discrete environment inputs, and split platform/account context inputs.
+- Updated `js/report-submit.js` so the new structured UI is serialized back into the existing flat developer-report contract (`affected_area`, `environment_details`, `platform_details`, `account_context`) while also emitting richer JSON via `structured_metadata`.
+- No shared StreamSuites runtime/auth contract change was required for this pass; the frontend adapts to the already-shipped `/api/developer/reports` payload shape.
+- Added targeted node assertions in `tests/developer-access-gating.test.mjs` for Admin-shell markup parity on protected routes and for structured report-field serialization markers.
+
+### Human-Readable Notes
+
+- The protected Developer Console now uses the same shell construction discipline as Admin instead of the previous oversized custom sidebar.
+- The detailed developer report form now asks for explicit technical context instead of loose monolithic environment/account text blobs.
+- Report submission stays compatible with the current backend flow while carrying richer structured metadata for triage.
+
 ## Emergency Login Turnstile Placement Hotfix - 2026-04-06
 
 ### Technical Notes

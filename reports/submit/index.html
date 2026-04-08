@@ -32,21 +32,242 @@
     </section>
     <section class="main-stack">
       <article class="form-card">
-        <form id="report-form" class="form-grid">
-          <label class="field"><span>Title</span><input name="title" maxlength="160" required /></label>
-          <label class="field"><span>Affected area</span><input name="affected_area" maxlength="120" placeholder="Public, auth, approvals, export, runtime" required /></label>
-          <label class="field"><span>Category</span><select name="category" required><option value="bug">Bug</option><option value="regression">Regression</option><option value="auth">Auth</option><option value="api">API</option><option value="ui">UI</option><option value="platform">Platform</option><option value="performance">Performance</option></select></label>
-          <label class="field"><span>Severity</span><select name="severity" required><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option><option value="critical">Critical</option></select></label>
-          <label class="field-wide"><span>Reproduction steps</span><textarea name="reproduction_steps" required placeholder="List the exact steps and conditions needed to reproduce."></textarea></label>
-          <label class="field"><span>Expected result</span><textarea name="expected_result" required></textarea></label>
-          <label class="field"><span>Actual result</span><textarea name="actual_result" required></textarea></label>
-          <label class="field"><span>Environment / browser</span><textarea name="environment_details" required placeholder="OS, browser, version, viewport, flags"></textarea></label>
-          <label class="field"><span>Platform / account context</span><textarea name="platform_details" required placeholder="Surface, platform, route, creator or viewer context"></textarea></label>
-          <label class="field-wide"><span>Account context</span><textarea name="account_context" required placeholder="Safe account context only, no secrets."></textarea></label>
-          <label class="field-wide"><span>Structured metadata (JSON)</span><textarea name="structured_metadata" placeholder='{"route":"/feedback/","build":"alpha"}'></textarea></label>
-          <label class="field-wide"><span>Detailed notes</span><textarea name="body" required placeholder="Add technical detail, observations, mitigations tried, or edge-case notes."></textarea></label>
-          <label class="field-wide"><span>Attachments</span><input id="attachments" type="file" accept=".png,.jpg,.jpeg,.webp,.gif,.json,.txt,.log" multiple /></label>
-          <div class="field-wide"><button class="solid-button" type="submit">Submit developer report</button></div>
+        <form id="report-form" class="report-form-stack">
+          <section class="report-form-section">
+            <div class="report-form-section-header">
+              <p class="report-section-kicker">Required issue definition</p>
+              <h2>Core report</h2>
+              <p class="muted">Keep the title short, mark severity honestly, and describe how to reproduce the issue with exact steps.</p>
+            </div>
+            <div class="form-grid report-section-grid">
+              <label class="field">
+                <span class="field-heading"><span class="field-label">Title</span><span class="field-badge is-required">Required</span></span>
+                <span class="field-help">Short technical summary used in triage lists.</span>
+                <input name="title" maxlength="160" required />
+              </label>
+              <label class="field">
+                <span class="field-heading"><span class="field-label">Category</span><span class="field-badge is-required">Required</span></span>
+                <span class="field-help">Choose the dominant issue type.</span>
+                <select name="category" required>
+                  <option value="bug">Bug</option>
+                  <option value="regression">Regression</option>
+                  <option value="auth">Auth</option>
+                  <option value="api">API</option>
+                  <option value="ui">UI</option>
+                  <option value="platform">Platform</option>
+                  <option value="performance">Performance</option>
+                </select>
+              </label>
+              <label class="field">
+                <span class="field-heading"><span class="field-label">Severity</span><span class="field-badge is-required">Required</span></span>
+                <span class="field-help">Pick the current user-facing impact.</span>
+                <select name="severity" required>
+                  <option value="low">Low</option>
+                  <option value="medium">Medium</option>
+                  <option value="high">High</option>
+                  <option value="critical">Critical</option>
+                </select>
+              </label>
+              <fieldset class="field-group field-wide" data-checkbox-group="affected-area">
+                <legend class="field-group-legend">
+                  <span class="field-heading"><span class="field-label">Affected area</span><span class="field-badge is-required">Required</span></span>
+                  <span class="field-help">Select every surface or subsystem touched by this issue.</span>
+                </legend>
+                <div class="checkbox-grid">
+                  <label class="checkbox-card"><input type="checkbox" name="affected_area_choice" value="dashboard_shell" /><span class="checkbox-card-copy"><span class="checkbox-card-title">Dashboard shell</span><span class="checkbox-card-meta">Authenticated console sidebar, topbar, and shell layout.</span></span></label>
+                  <label class="checkbox-card"><input type="checkbox" name="affected_area_choice" value="reports_hub" /><span class="checkbox-card-copy"><span class="checkbox-card-title">Reports hub</span><span class="checkbox-card-meta">Protected `/reports` hub routing and launch points.</span></span></label>
+                  <label class="checkbox-card"><input type="checkbox" name="affected_area_choice" value="report_submission" /><span class="checkbox-card-copy"><span class="checkbox-card-title">Report submission</span><span class="checkbox-card-meta">Standalone `/reports/submit` form flow and validation.</span></span></label>
+                  <label class="checkbox-card"><input type="checkbox" name="affected_area_choice" value="keys_workspace" /><span class="checkbox-card-copy"><span class="checkbox-card-title">Keys workspace</span><span class="checkbox-card-meta">Protected `/keys` placeholder route and account gating.</span></span></label>
+                  <label class="checkbox-card"><input type="checkbox" name="affected_area_choice" value="auth_session" /><span class="checkbox-card-copy"><span class="checkbox-card-title">Auth / session</span><span class="checkbox-card-meta">Login, redirects, cookies, gating, or session bootstrap.</span></span></label>
+                  <label class="checkbox-card"><input type="checkbox" name="affected_area_choice" value="api_backend" /><span class="checkbox-card-copy"><span class="checkbox-card-title">API / backend</span><span class="checkbox-card-meta">Request payloads, API failures, runtime authority, or response shape.</span></span></label>
+                  <label class="checkbox-card"><input type="checkbox" name="affected_area_choice" value="runtime_exports" /><span class="checkbox-card-copy"><span class="checkbox-card-title">Runtime / exports</span><span class="checkbox-card-meta">Data export, artifact handling, or operational background state.</span></span></label>
+                  <label class="checkbox-card"><input type="checkbox" name="affected_area_choice" value="other" data-other-toggle="affected-area" /><span class="checkbox-card-copy"><span class="checkbox-card-title">Other</span><span class="checkbox-card-meta">Use when none of the listed areas fit.</span></span></label>
+                </div>
+                <div id="affected-area-other-wrap" class="conditional-field hidden">
+                  <label class="field">
+                    <span class="field-heading"><span class="field-label">Other affected area</span><span class="field-badge is-required">Required when selected</span></span>
+                    <span class="field-help">Describe the missing area briefly and specifically.</span>
+                    <input name="affected_area_other" maxlength="120" disabled />
+                  </label>
+                </div>
+                <p id="affected-area-validation" class="validation-copy" aria-live="polite"></p>
+              </fieldset>
+              <label class="field-wide">
+                <span class="field-heading"><span class="field-label">Reproduction steps</span><span class="field-badge is-required">Required</span></span>
+                <span class="field-help">List the exact steps, state transitions, and timing needed to reproduce.</span>
+                <textarea name="reproduction_steps" required placeholder="1. Sign in with ...&#10;2. Open ...&#10;3. Trigger ..."></textarea>
+              </label>
+              <label class="field">
+                <span class="field-heading"><span class="field-label">Expected result</span><span class="field-badge is-required">Required</span></span>
+                <span class="field-help">What should have happened instead.</span>
+                <textarea name="expected_result" required></textarea>
+              </label>
+              <label class="field">
+                <span class="field-heading"><span class="field-label">Actual result</span><span class="field-badge is-required">Required</span></span>
+                <span class="field-help">What happened in reality, including user-visible impact.</span>
+                <textarea name="actual_result" required></textarea>
+              </label>
+            </div>
+          </section>
+
+          <section class="report-form-section">
+            <div class="report-form-section-header">
+              <p class="report-section-kicker">Structured diagnostics</p>
+              <h2>Environment / browser</h2>
+              <p class="muted">Capture the execution context as discrete fields so triage does not depend on parsing one loose paragraph.</p>
+            </div>
+            <div class="form-grid report-section-grid">
+              <label class="field">
+                <span class="field-heading"><span class="field-label">Operating system</span><span class="field-badge is-required">Required</span></span>
+                <span class="field-help">Name the OS family where the issue occurred.</span>
+                <input name="environment_os" maxlength="80" placeholder="Windows, macOS, iOS, Android..." required />
+              </label>
+              <label class="field">
+                <span class="field-heading"><span class="field-label">OS version</span><span class="field-badge is-optional">Optional</span></span>
+                <span class="field-help">Add build or release detail when it matters.</span>
+                <input name="environment_os_version" maxlength="80" placeholder="11 24H2, macOS 15.4, iOS 19..." />
+              </label>
+              <label class="field">
+                <span class="field-heading"><span class="field-label">Browser</span><span class="field-badge is-required">Required</span></span>
+                <span class="field-help">Name the browser or client shell involved.</span>
+                <input name="environment_browser" maxlength="80" placeholder="Chrome, Edge, Safari, WebView..." required />
+              </label>
+              <label class="field">
+                <span class="field-heading"><span class="field-label">Browser version</span><span class="field-badge is-optional">Optional</span></span>
+                <span class="field-help">Include the exact version if available.</span>
+                <input name="environment_browser_version" maxlength="80" placeholder="135.0.7049.42" />
+              </label>
+              <label class="field">
+                <span class="field-heading"><span class="field-label">Viewport / screen size</span><span class="field-badge is-optional">Optional</span></span>
+                <span class="field-help">Useful for responsive or shell-spacing issues.</span>
+                <input name="environment_viewport" maxlength="80" placeholder="1512x982, 390x844, ultrawide..." />
+              </label>
+              <label class="field">
+                <span class="field-heading"><span class="field-label">Device type</span><span class="field-badge is-required">Required</span></span>
+                <span class="field-help">Call out the device class involved.</span>
+                <select name="environment_device_type" required>
+                  <option value="">Select device type</option>
+                  <option value="desktop">Desktop</option>
+                  <option value="laptop">Laptop</option>
+                  <option value="tablet">Tablet</option>
+                  <option value="mobile">Mobile</option>
+                  <option value="embedded">Embedded / WebView</option>
+                  <option value="other">Other</option>
+                </select>
+              </label>
+              <label class="field-wide">
+                <span class="field-heading"><span class="field-label">Active flags / experimental toggles / extensions / special conditions</span><span class="field-badge is-optional">Optional</span></span>
+                <span class="field-help">Only include conditions that materially affect reproduction.</span>
+                <textarea name="environment_flags" placeholder="Extensions enabled, beta flags, throttling, VPN, corporate policies, injected scripts, OBS dock, etc."></textarea>
+              </label>
+            </div>
+          </section>
+
+          <section class="report-form-section">
+            <div class="report-form-section-header">
+              <p class="report-section-kicker">Structured context</p>
+              <h2>Platform / account context</h2>
+              <p class="muted">Split route, surface, platform, and account scope into discrete fields so the backend still receives a predictable summary.</p>
+            </div>
+            <div class="form-grid report-section-grid">
+              <label class="field">
+                <span class="field-heading"><span class="field-label">Surface</span><span class="field-badge is-required">Required</span></span>
+                <span class="field-help">Primary StreamSuites surface where the issue occurred.</span>
+                <select name="context_surface" data-other-select="surface" required>
+                  <option value="">Select surface</option>
+                  <option value="developer_console">Developer Console</option>
+                  <option value="public_feedback">Public feedback</option>
+                  <option value="beta_program">Beta program</option>
+                  <option value="login_flow">Login / session flow</option>
+                  <option value="api_only">API-only interaction</option>
+                  <option value="other">Other</option>
+                </select>
+              </label>
+              <div id="surface-other-wrap" class="conditional-field hidden">
+                <label class="field">
+                  <span class="field-heading"><span class="field-label">Other surface</span><span class="field-badge is-required">Required when selected</span></span>
+                  <span class="field-help">Name the missing surface clearly.</span>
+                  <input name="context_surface_other" maxlength="120" disabled />
+                </label>
+              </div>
+              <label class="field">
+                <span class="field-heading"><span class="field-label">Platform</span><span class="field-badge is-optional">Optional</span></span>
+                <span class="field-help">Use when an external platform or integration matters.</span>
+                <select name="context_platform" data-other-select="platform">
+                  <option value="">Not platform-specific</option>
+                  <option value="streamsuites_web">StreamSuites web</option>
+                  <option value="rumble">Rumble</option>
+                  <option value="youtube">YouTube</option>
+                  <option value="twitch">Twitch</option>
+                  <option value="kick">Kick</option>
+                  <option value="discord">Discord</option>
+                  <option value="obs">OBS</option>
+                  <option value="browser_extension">Browser extension</option>
+                  <option value="other">Other</option>
+                </select>
+              </label>
+              <div id="platform-other-wrap" class="conditional-field hidden">
+                <label class="field">
+                  <span class="field-heading"><span class="field-label">Other platform</span><span class="field-badge is-required">Required when selected</span></span>
+                  <span class="field-help">Name the missing platform or integration.</span>
+                  <input name="context_platform_other" maxlength="120" disabled />
+                </label>
+              </div>
+              <label class="field">
+                <span class="field-heading"><span class="field-label">Route / URL path</span><span class="field-badge is-required">Required</span></span>
+                <span class="field-help">Use a route or scrubbed path, not a full secret-bearing URL.</span>
+                <input name="context_route" maxlength="240" placeholder="/reports/submit/" required />
+              </label>
+              <label class="field">
+                <span class="field-heading"><span class="field-label">Creator context</span><span class="field-badge is-optional">Optional</span></span>
+                <span class="field-help">Creator state or role relevant to the bug.</span>
+                <input name="context_creator" maxlength="240" placeholder="Creator dashboard open, linked account state, channel mode..." />
+              </label>
+              <label class="field">
+                <span class="field-heading"><span class="field-label">Viewer context</span><span class="field-badge is-optional">Optional</span></span>
+                <span class="field-help">Viewer-side scenario relevant to the bug.</span>
+                <input name="context_viewer" maxlength="240" placeholder="Signed-out viewer, embedded player, replay state..." />
+              </label>
+              <label class="field">
+                <span class="field-heading"><span class="field-label">Account / tier context</span><span class="field-badge is-optional">Optional</span></span>
+                <span class="field-help">Safe role or tier information only. No secrets.</span>
+                <input name="context_account_tier" maxlength="240" placeholder="Developer Core, creator Gold, admin staff..." />
+              </label>
+              <label class="field-wide">
+                <span class="field-heading"><span class="field-label">Relevant creator / viewer identifiers</span><span class="field-badge is-optional">Optional</span></span>
+                <span class="field-help">Safe identifiers only when they materially help triage.</span>
+                <textarea name="context_identifiers" placeholder="Creator ID, viewer ID, submission ID, room ID, or route-specific identifier."></textarea>
+              </label>
+            </div>
+          </section>
+
+          <section class="report-form-section">
+            <div class="report-form-section-header">
+              <p class="report-section-kicker">Technical detail</p>
+              <h2>Notes and attachments</h2>
+              <p class="muted">Preserve the richer developer-report detail while making required versus optional fields explicit.</p>
+            </div>
+            <div class="form-grid report-section-grid">
+              <label class="field-wide">
+                <span class="field-heading"><span class="field-label">Detailed notes</span><span class="field-badge is-required">Required</span></span>
+                <span class="field-help">Capture mitigation attempts, extra observations, or edge-case findings that do not fit elsewhere.</span>
+                <textarea name="body" required placeholder="Add technical detail, observations, mitigations tried, or edge-case notes."></textarea>
+              </label>
+              <label class="field-wide">
+                <span class="field-heading"><span class="field-label">Advanced structured metadata (JSON)</span><span class="field-badge is-optional">Optional</span></span>
+                <span class="field-help">Optional extra JSON merged into the structured metadata payload after validation.</span>
+                <textarea name="structured_metadata_extra" placeholder='{"build":"alpha","sample_count":3}'></textarea>
+              </label>
+              <label class="field-wide">
+                <span class="field-heading"><span class="field-label">Attachments</span><span class="field-badge is-optional">Optional</span></span>
+                <span class="field-help">Safe file types only in this phase: images, JSON, TXT, and LOG files.</span>
+                <input id="attachments" type="file" accept=".png,.jpg,.jpeg,.webp,.gif,.json,.txt,.log" multiple />
+              </label>
+              <div class="field-wide report-submit-actions">
+                <button class="solid-button" type="submit">Submit developer report</button>
+              </div>
+            </div>
+          </section>
         </form>
       </article>
     </section>

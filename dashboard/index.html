@@ -4,60 +4,149 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Developer Dashboard | StreamSuites Developer Console</title>
+  <script>
+    (function () {
+      const key = "ss_developer_sidebar_collapsed";
+      const mobileBreakpoint = 980;
+      let collapsed = false;
+
+      try {
+        const stored = window.localStorage.getItem(key);
+        if (stored === "1") {
+          collapsed = true;
+        } else if (stored === "0") {
+          collapsed = false;
+        } else {
+          collapsed = window.innerWidth <= mobileBreakpoint;
+        }
+      } catch (_error) {
+        collapsed = window.innerWidth <= mobileBreakpoint;
+      }
+
+      if (collapsed) {
+        document.documentElement.classList.add("ss-sidebar-collapsed");
+      }
+    })();
+  </script>
   <link rel="icon" href="/assets/logos/favicon.ico" />
   <link rel="stylesheet" href="/css/app.css" />
 </head>
-<body>
-  <div class="console-app">
-    <aside class="console-sidebar">
-      <a class="shell-brand" href="/dashboard/">
-        <img src="/assets/logos/logocircle.png" alt="StreamSuites" />
-        <div class="shell-brand-copy">
-          <span class="shell-brand-mark">StreamSuites</span>
-          <span class="shell-brand-sub">Developer Console</span>
+<body class="developer-shell-page">
+  <div id="app">
+    <aside id="app-nav" class="ss-sidebar">
+      <div class="ss-sidebar-brand">
+        <div class="header-left">
+          <a href="/dashboard/" class="ss-sidebar-brand-link">
+            <img src="/assets/logos/logocircle.png" alt="StreamSuites" />
+            <div class="ss-sidebar-brand-text">
+              <h1 class="app-title">StreamSuites™</h1>
+              <span class="dashboard-badge" id="dashboard-mode">Developer Console</span>
+            </div>
+          </a>
         </div>
-      </a>
-      <div class="console-sidebar-nav">
-        <span class="console-sidebar-label">Console</span>
-        <a class="shell-nav-link" data-shell-nav="dashboard" href="/dashboard/">Dashboard</a>
-        <a class="shell-nav-link" data-shell-nav="reports" href="/reports/">Reports</a>
-        <a class="shell-nav-link" data-shell-nav="keys" href="/keys/">Keys</a>
       </div>
-      <div class="console-sidebar-footer">
-        <span class="console-sidebar-label">Quicklink</span>
-        <a class="shell-nav-link external" href="/beta/" target="_blank" rel="noreferrer">Beta</a>
+      <div class="nav-shell">
+        <ul id="app-nav-list">
+          <li class="nav-section nav-group-label" aria-hidden="true">Core</li>
+          <li data-view="dashboard" data-route="/dashboard/" role="link" tabindex="0" title="Dashboard">
+            <span class="nav-icon" aria-hidden="true"></span>
+            <span class="nav-label">Dashboard</span>
+          </li>
+          <li data-view="reports" data-route="/reports/" role="link" tabindex="0" title="Reports">
+            <span class="nav-icon" aria-hidden="true"></span>
+            <span class="nav-label">Reports</span>
+          </li>
+          <li data-view="keys" data-route="/keys/" role="link" tabindex="0" title="Keys">
+            <span class="nav-icon" aria-hidden="true"></span>
+            <span class="nav-label">Keys</span>
+          </li>
+          <li class="nav-spacer" aria-hidden="true"></li>
+          <li class="nav-section nav-group-label" aria-hidden="true">Utilities</li>
+          <li
+            data-view="beta"
+            data-route="/beta/"
+            data-target="_blank"
+            data-rel="noreferrer"
+            role="link"
+            tabindex="0"
+            title="Beta"
+          >
+            <span class="nav-icon" aria-hidden="true"></span>
+            <span class="nav-label">Beta</span>
+            <span class="nav-external-indicator" aria-hidden="true">↗</span>
+          </li>
+        </ul>
       </div>
     </aside>
-    <div class="console-main">
-      <header class="shell-topbar">
-        <div class="shell shell-topbar-inner">
-          <div class="shell-topbar-left">
-            <div class="shell-page-title">
-              <span class="shell-kicker"><strong>Authenticated</strong> dashboard home</span>
-              <h1>Developer dashboard</h1>
-              <p>Presentation-only console surface backed by StreamSuites auth and report authority.</p>
+    <div class="ss-main">
+      <header id="app-header" class="ss-topbar">
+        <div class="ss-topbar-left">
+          <button
+            type="button"
+            id="sidebar-collapse-toggle"
+            class="sidebar-collapse-toggle"
+            aria-controls="app-nav"
+            aria-expanded="true"
+            aria-label="Collapse sidebar"
+            title="Collapse sidebar"
+          >
+            <span class="sidebar-collapse-toggle-icon" aria-hidden="true"></span>
+            <span class="sr-only">Toggle sidebar</span>
+          </button>
+          <span id="topbar-view-title" class="ss-topbar-title">Dashboard</span>
+        </div>
+        <div class="ss-topbar-right">
+          <button
+            type="button"
+            id="topbar-refresh-button"
+            class="ss-topbar-icon-button"
+            aria-label="Refresh current view"
+            title="Refresh current view"
+          >
+            <span class="ss-topbar-icon ss-topbar-icon-refresh" aria-hidden="true"></span>
+            <span class="sr-only">Refresh current view</span>
+          </button>
+          <div class="header-right">
+            <div class="header-row header-auth-row">
+              <span data-auth-slot></span>
             </div>
-          </div>
-          <div class="shell-topbar-right">
-            <span data-auth-slot></span>
           </div>
         </div>
       </header>
-      <main class="console-surface">
-        <div class="console-surface-inner main-stack">
-          <div id="dashboard-status" class="status-line">Checking session...</div>
-          <div class="shell-panel-grid">
-            <article class="summary-card"><h3>Identity</h3><p id="dashboard-identity" class="mono">Loading...</p></article>
-            <article class="summary-card"><h3>Role</h3><p id="dashboard-role">Loading...</p></article>
-            <article class="summary-card"><h3>Tier</h3><p id="dashboard-tier">Loading...</p></article>
-          </div>
-          <div class="route-grid">
-            <article class="route-card"><h3>Reports hub</h3><p class="muted">Use `/reports` as the authenticated console launch point for public feedback and detailed technical reporting.</p><a class="soft-button" href="/reports/">Open reports hub</a></article>
-            <article class="route-card"><h3>API keys</h3><p class="muted">The `/keys` route stays reserved so future key management can land without another IA migration.</p><a class="soft-button" href="/keys/">View keys workspace</a></article>
-          </div>
+      <main id="app-main">
+        <div id="view-container">
+          <section class="main-stack developer-view-stack">
+            <article class="detail-card developer-view-hero">
+              <span class="eyebrow"><strong>Authenticated</strong> dashboard home</span>
+              <h2>Developer dashboard</h2>
+              <p class="muted">Presentation-only console surface backed by StreamSuites auth and report authority.</p>
+              <div id="dashboard-status" class="status-line">Checking session...</div>
+            </article>
+            <div class="shell-panel-grid">
+              <article class="summary-card"><h3>Identity</h3><p id="dashboard-identity" class="mono">Loading...</p></article>
+              <article class="summary-card"><h3>Role</h3><p id="dashboard-role">Loading...</p></article>
+              <article class="summary-card"><h3>Tier</h3><p id="dashboard-tier">Loading...</p></article>
+            </div>
+            <div class="route-grid">
+              <article class="route-card"><h3>Reports hub</h3><p class="muted">Use `/reports` as the authenticated console launch point for public feedback and detailed technical reporting.</p><a class="soft-button" href="/reports/">Open reports hub</a></article>
+              <article class="route-card"><h3>API keys</h3><p class="muted">The `/keys` route stays reserved so future key management can land without another IA migration.</p><a class="soft-button" href="/keys/">View keys workspace</a></article>
+            </div>
+          </section>
         </div>
       </main>
     </div>
+    <footer id="app-footer" data-ss-footer-edge="true">
+      <div class="footer-left">
+        <span id="footer-version" class="footer-version">Version unavailable</span>
+        <span class="footer-sep">•</span>
+        <a id="footer-copyright" href="https://brainstream.media" target="_blank" rel="noopener noreferrer">
+          © <span data-year></span> Brainstream Media Group
+        </a>
+      </div>
+      <div class="footer-right">
+        <span id="app-status" class="status-indicator active footer-active-pill">ready</span>
+      </div>
+    </footer>
   </div>
   <script type="module" src="/js/dashboard.js"></script>
 </body>

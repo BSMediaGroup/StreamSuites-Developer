@@ -1,10 +1,16 @@
 import { DEFAULT_AFTER_LOGIN_PATH, buildLoginPageUrl, buildReturnToPath } from "./config.js";
 import { fetchMe } from "./api.js";
 
+const SHELL_COLLAPSE_STORAGE_KEY = "ss_developer_sidebar_collapsed";
+
 function setActiveNav(navKey) {
-  document.querySelectorAll("[data-nav], [data-shell-nav]").forEach((link) => {
-    const key = link.getAttribute("data-nav") || link.getAttribute("data-shell-nav");
-    link.classList.toggle("active", key === navKey);
+  document.querySelectorAll("[data-nav], [data-shell-nav], #app-nav li[data-view]").forEach((link) => {
+    const key = link.getAttribute("data-nav") || link.getAttribute("data-shell-nav") || link.getAttribute("data-view");
+    const isActive = key === navKey;
+    link.classList.toggle("active", isActive);
+    if (link.matches("#app-nav li[data-view]")) {
+      link.setAttribute("aria-current", isActive ? "page" : "false");
+    }
   });
 }
 
@@ -40,9 +46,16 @@ function getAvatarUrl(me) {
   return me?.avatar_url || me?.creator?.avatar_url || me?.profile?.avatar_url || "";
 }
 
-function buildAvatarFallback(name) {
-  const source = String(name || "").trim();
-  return source ? source.slice(0, 1).toUpperCase() : "S";
+function getTierBadgeSrc(me) {
+  switch (String(getDisplayTier(me) || "").trim().toUpperCase()) {
+    case "GOLD":
+      return "/assets/icons/tierbadge-gold.svg";
+    case "PRO":
+      return "/assets/icons/tierbadge-pro.svg";
+    case "CORE":
+    default:
+      return "/assets/icons/tierbadge-core.svg";
+  }
 }
 
 function getDeveloperConsoleAccess(me) {
@@ -102,7 +115,9 @@ function closeOtherMenus(except = null) {
   document.querySelectorAll("[data-user-menu]").forEach((menu) => {
     if (menu === except) return;
     menu.hidden = true;
+    menu.classList.add("hidden");
     const trigger = menu.parentElement?.querySelector("[data-user-trigger]");
+    trigger?.parentElement?.classList.remove("is-open");
     trigger?.classList.remove("is-open");
     trigger?.setAttribute("aria-expanded", "false");
   });
@@ -125,93 +140,107 @@ function renderSignedInSlot(slot, me) {
   const developerAccess = getDeveloperConsoleAccess(me);
   const creatorAllowed = isCreatorDashboardAllowed(me);
   const adminAllowed = isAdminDashboardAllowed(me);
+  const menuId = `developer-user-menu-${Math.random().toString(36).slice(2, 10)}`;
 
   const widget = document.createElement("div");
-  widget.className = "user-widget";
+  widget.className = "streamsuites-auth";
 
-  const trigger = document.createElement("button");
-  trigger.type = "button";
-  trigger.className = "user-trigger";
+  const trigger = document.createElement("div");
+  trigger.className = "streamsuites-auth-toggle";
   trigger.setAttribute("data-user-trigger", "true");
+  trigger.setAttribute("role", "button");
+  trigger.setAttribute("tabindex", "0");
   trigger.setAttribute("aria-haspopup", "menu");
   trigger.setAttribute("aria-expanded", "false");
+  trigger.setAttribute("aria-controls", menuId);
+  trigger.setAttribute("aria-label", "Toggle user menu");
 
-  const avatar = document.createElement("span");
-  avatar.className = "user-avatar";
+  const avatar = document.createElement("div");
+  avatar.className = "streamsuites-auth-avatar";
+  const image = document.createElement("img");
   const avatarUrl = getAvatarUrl(me);
+  image.src = avatarUrl || "/assets/icons/ui/profile.svg";
+  image.alt = "StreamSuites account avatar";
+  image.dataset.fallback = "/assets/icons/ui/profile.svg";
   if (avatarUrl) {
-    const image = document.createElement("img");
-    image.src = avatarUrl;
-    image.alt = "";
-    avatar.appendChild(image);
-  } else {
-    const fallback = document.createElement("span");
-    fallback.className = "user-avatar-fallback";
-    fallback.textContent = buildAvatarFallback(getDisplayName(me));
-    avatar.appendChild(fallback);
+    image.classList.add("is-avatar");
   }
+  avatar.appendChild(image);
 
-  const copy = document.createElement("span");
-  copy.className = "user-copy";
-  copy.innerHTML = `<span class="user-name">${getDisplayName(me)}</span><span class="user-meta">${getIdentitySummary(me)}</span>`;
+  const copy = document.createElement("div");
+  copy.className = "streamsuites-auth-meta";
+  copy.innerHTML = `
+    <span class="streamsuites-auth-name">
+      <span class="streamsuites-auth-name-text">${getDisplayName(me)}</span>
+      <span class="ss-role-badges" data-ss-badge-kind="role">
+        <img class="streamsuites-auth-tier-badge" src="${getTierBadgeSrc(me)}" alt="${getDisplayTier(me)} tier badge" />
+        <img class="streamsuites-auth-tier-badge streamsuites-auth-developer-badge" src="/assets/icons/ui/ss-developer.svg" alt="Developer access badge" />
+      </span>
+    </span>
+    <span class="streamsuites-auth-identity">${getEmail(me)}</span>
+  `;
 
   trigger.append(avatar, copy);
 
   const menu = document.createElement("div");
-  menu.className = "user-menu";
+  menu.id = menuId;
+  menu.className = "ss-user-menu hidden";
   menu.hidden = true;
   menu.setAttribute("role", "menu");
   menu.setAttribute("data-user-menu", "true");
-  const header = document.createElement("div");
-  header.className = "user-menu-header";
-  header.innerHTML = `
-    <div class="user-menu-name">${getDisplayName(me)}</div>
-    <div class="user-menu-email">${getEmail(me)}</div>
-    <div class="user-menu-role">${getIdentitySummary(me)}</div>
-  `;
 
   const overview = document.createElement("div");
-  overview.className = "user-menu-overview";
+  overview.className = "ss-user-menu-overview";
   for (const row of getAccountOverviewRows(me)) {
     const item = document.createElement("div");
-    item.className = "user-menu-overview-row";
-    item.innerHTML = `<span class="user-menu-overview-label">${row.label}</span><span class="user-menu-overview-value">${row.value}</span>`;
+    item.className = "ss-user-menu-overview-row";
+    item.innerHTML = `<span class="ss-user-menu-overview-label">${row.label}</span><span class="ss-user-menu-overview-value">${row.value}</span>`;
     overview.appendChild(item);
   }
 
-  const links = document.createElement("div");
-  links.className = "user-menu-links";
-  links.innerHTML = developerAccess.allowed
-    ? `<a class="user-menu-link" href="/dashboard/" role="menuitem">Open dashboard</a>
-      <a class="user-menu-link" href="/reports/" role="menuitem">Open reports</a>`
-    : `<a class="user-menu-link" href="/feedback/" role="menuitem">Open feedback</a>
-      <a class="user-menu-link" href="/beta/apply/" role="menuitem">Open beta apply</a>`;
+  const items = [
+    developerAccess.allowed
+      ? `<a class="ss-user-menu-item" href="/dashboard/" role="menuitem"><span class="ss-user-menu-item-icon" data-icon="dashboard" aria-hidden="true"></span>Developer Dashboard</a>`
+      : `<a class="ss-user-menu-item" href="/feedback/" role="menuitem"><span class="ss-user-menu-item-icon" data-icon="feedback" aria-hidden="true"></span>Open feedback</a>`,
+    developerAccess.allowed
+      ? `<a class="ss-user-menu-item" href="/reports/" role="menuitem"><span class="ss-user-menu-item-icon" data-icon="reports" aria-hidden="true"></span>Reports Hub</a>`
+      : `<a class="ss-user-menu-item" href="/beta/apply/" role="menuitem"><span class="ss-user-menu-item-icon" data-icon="beta" aria-hidden="true"></span>Beta Apply</a>`,
+    `<a class="ss-user-menu-item" href="/beta/" role="menuitem" target="_blank" rel="noreferrer"><span class="ss-user-menu-item-icon" data-icon="beta" aria-hidden="true"></span>Beta Program</a>`,
+  ];
 
   if (creatorAllowed) {
-    links.insertAdjacentHTML(
-      "beforeend",
-      `<a class="user-menu-link" href="https://creator.streamsuites.app/" role="menuitem" target="_blank" rel="noreferrer">Creator Dashboard</a>`
+    items.push(
+      `<a class="ss-user-menu-item" href="https://creator.streamsuites.app/" role="menuitem" target="_blank" rel="noreferrer"><span class="ss-user-menu-item-icon" data-icon="creator" aria-hidden="true"></span>Creator Dashboard</a>`
     );
   }
   if (adminAllowed) {
-    links.insertAdjacentHTML(
-      "beforeend",
-      `<a class="user-menu-link" href="https://admin.streamsuites.app/" role="menuitem" target="_blank" rel="noreferrer">Admin Dashboard</a>`
+    items.push(
+      `<a class="ss-user-menu-item" href="https://admin.streamsuites.app/" role="menuitem" target="_blank" rel="noreferrer"><span class="ss-user-menu-item-icon" data-icon="admin" aria-hidden="true"></span>Admin Dashboard</a>`
     );
   }
-  links.insertAdjacentHTML(
-    "beforeend",
-    `<button class="user-menu-action is-danger" type="button" role="menuitem" data-auth-logout="true">Sign out</button>`
+  items.push(`<div class="ss-user-menu-divider" role="separator" aria-hidden="true"></div>`);
+  items.push(
+    `<button id="developer-auth-logout" type="button" class="ss-user-menu-item" role="menuitem" data-auth-logout="true"><span class="ss-user-menu-item-icon" data-icon="logout" aria-hidden="true"></span>Sign out</button>`
   );
 
-  menu.append(header, overview, links);
+  menu.append(overview);
+  menu.insertAdjacentHTML("beforeend", items.join(""));
 
-  trigger.addEventListener("click", () => {
+  function toggleMenu() {
     const nextOpen = menu.hidden;
     closeOtherMenus(nextOpen ? menu : null);
     menu.hidden = !nextOpen;
+    menu.classList.toggle("hidden", !nextOpen);
+    widget.classList.toggle("is-open", nextOpen);
     trigger.classList.toggle("is-open", nextOpen);
     trigger.setAttribute("aria-expanded", nextOpen ? "true" : "false");
+  }
+
+  trigger.addEventListener("click", toggleMenu);
+  trigger.addEventListener("keydown", (event) => {
+    if (event.key !== "Enter" && event.key !== " ") return;
+    event.preventDefault();
+    toggleMenu();
   });
 
   menu.querySelector("[data-auth-logout='true']")?.addEventListener("click", logoutAndRedirect);
@@ -238,7 +267,7 @@ function bindGlobalAuthUi() {
   document.addEventListener("click", (event) => {
     const target = event.target;
     if (!(target instanceof Node)) return;
-    const menu = target instanceof Element ? target.closest(".user-widget") : null;
+    const menu = target instanceof Element ? target.closest(".streamsuites-auth") : null;
     if (menu) return;
     closeOtherMenus();
   });
@@ -247,6 +276,59 @@ function bindGlobalAuthUi() {
     if (event.key !== "Escape") return;
     closeOtherMenus();
   });
+}
+
+function bindAdminStyleShell() {
+  if (document.body.dataset.shellUiBound === "true") return;
+  document.body.dataset.shellUiBound = "true";
+
+  const collapseToggle = document.getElementById("sidebar-collapse-toggle");
+  const refreshButton = document.getElementById("topbar-refresh-button");
+
+  function setCollapsed(collapsed) {
+    document.documentElement.classList.toggle("ss-sidebar-collapsed", collapsed);
+    document.body.classList.toggle("ss-sidebar-collapsed", collapsed);
+    collapseToggle?.setAttribute("aria-expanded", collapsed ? "false" : "true");
+    if (collapseToggle) {
+      collapseToggle.title = collapsed ? "Expand sidebar" : "Collapse sidebar";
+      collapseToggle.setAttribute("aria-label", collapsed ? "Expand sidebar" : "Collapse sidebar");
+    }
+    try {
+      window.localStorage.setItem(SHELL_COLLAPSE_STORAGE_KEY, collapsed ? "1" : "0");
+    } catch (_error) {
+      // Ignore storage visibility failures and keep the shell interactive.
+    }
+  }
+
+  collapseToggle?.addEventListener("click", () => {
+    setCollapsed(!document.documentElement.classList.contains("ss-sidebar-collapsed"));
+  });
+
+  refreshButton?.addEventListener("click", () => {
+    window.location.reload();
+  });
+
+  document.querySelectorAll("#app-nav li[data-route]").forEach((item) => {
+    const openRoute = (event) => {
+      const route = item.getAttribute("data-route");
+      if (!route) return;
+      const target = item.getAttribute("data-target");
+      if (target === "_blank" || event?.ctrlKey || event?.metaKey || event?.button === 1) {
+        window.open(route, target || "_blank", "noopener,noreferrer");
+        return;
+      }
+      window.location.assign(route);
+    };
+
+    item.addEventListener("click", openRoute);
+    item.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter" && event.key !== " ") return;
+      event.preventDefault();
+      openRoute(event);
+    });
+  });
+
+  setCollapsed(document.documentElement.classList.contains("ss-sidebar-collapsed"));
 }
 
 export async function initConsolePage({
@@ -260,6 +342,7 @@ export async function initConsolePage({
     el.textContent = String(new Date().getFullYear());
   });
 
+  bindAdminStyleShell();
   bindGlobalAuthUi();
 
   const me = await fetchMe();

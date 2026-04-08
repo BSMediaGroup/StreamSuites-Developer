@@ -22,11 +22,52 @@ test("shared auth helpers consume runtime developer console access state", () =>
   assert.match(authJs, /creator_workspace_access/);
   assert.match(authJs, /access_class/);
   assert.match(authJs, /display_tier_label/);
-  assert.match(authJs, /user-menu-overview/);
+  assert.match(authJs, /ss-user-menu-overview/);
+  assert.match(authJs, /streamsuites-auth-toggle/);
   assert.match(authJs, /Creator Dashboard/);
   assert.match(authJs, /Admin Dashboard/);
   assert.match(authJs, /Open feedback/);
   assert.match(authJs, /developer-authorized StreamSuites account/);
+});
+
+test("authenticated console pages use the admin-style shell structure", () => {
+  for (const relativePath of ["dashboard/index.html", "reports/index.html", "keys/index.html"]) {
+    const html = read(relativePath);
+    assert.match(html, /<div id="app">/);
+    assert.match(html, /<aside id="app-nav" class="ss-sidebar">/);
+    assert.match(html, /id="app-nav-list"/);
+    assert.match(html, /id="sidebar-collapse-toggle"/);
+    assert.match(html, /id="app-header" class="ss-topbar"/);
+    assert.match(html, /id="app-footer"/);
+    assert.match(html, /data-view="beta"/);
+    assert.doesNotMatch(html, /class="console-sidebar"/);
+  }
+});
+
+test("standalone report submit stays outside the authenticated shell and uses structured fields", () => {
+  const html = read("reports/submit/index.html");
+  assert.doesNotMatch(html, /<div id="app">/);
+  assert.doesNotMatch(html, /id="app-nav"/);
+  assert.match(html, /name="affected_area_choice"/);
+  assert.match(html, /name="affected_area_other"/);
+  assert.match(html, /name="environment_os"/);
+  assert.match(html, /name="environment_browser"/);
+  assert.match(html, /name="context_surface"/);
+  assert.match(html, /name="context_route"/);
+  assert.match(html, /field-badge is-required/);
+  assert.match(html, /field-badge is-optional/);
+});
+
+test("report submission script maps structured fields back into the existing flat payload contract", () => {
+  const reportSubmitJs = read("js/report-submit.js");
+  assert.match(reportSubmitJs, /function buildDeveloperReportPayload/);
+  assert.match(reportSubmitJs, /function parseExtraMetadata/);
+  assert.match(reportSubmitJs, /affected_area:\s*affectedAreaSummary\.join/);
+  assert.match(reportSubmitJs, /environment_details:\s*buildDelimitedText/);
+  assert.match(reportSubmitJs, /platform_details:\s*buildDelimitedText/);
+  assert.match(reportSubmitJs, /account_context:\s*buildDelimitedText/);
+  assert.match(reportSubmitJs, /structured_metadata:\s*JSON\.stringify/);
+  assert.match(reportSubmitJs, /Advanced structured metadata must be valid JSON/);
 });
 
 test("developer login keeps the key icon path and collapsed alternate surfaces", () => {
