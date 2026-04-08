@@ -1,5 +1,5 @@
 import { fetchJson } from "./api.js";
-import { initConsolePage } from "./auth.js";
+import { initStandalonePage } from "./auth.js";
 
 const AFFECTED_AREA_LABELS = {
   dashboard_shell: "Dashboard shell",
@@ -40,7 +40,12 @@ const platformSelect = formEl?.elements.namedItem("context_platform");
 const platformOtherWrap = document.getElementById("platform-other-wrap");
 const platformOtherInput = formEl?.elements.namedItem("context_platform_other");
 
-const page = await initConsolePage({ navKey: "reports", authRequired: true, developerRequired: true, statusTargetId: "report-status" });
+const page = await initStandalonePage({
+  navKey: "report-submit",
+  authRequired: true,
+  developerRequired: true,
+  statusTargetId: "report-status",
+});
 
 function normalizeLabel(value) {
   return VALUE_LABELS[value] || AFFECTED_AREA_LABELS[value] || String(value || "").replace(/_/g, " ");

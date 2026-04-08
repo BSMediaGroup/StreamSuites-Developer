@@ -2,6 +2,7 @@ import { DEFAULT_AFTER_LOGIN_PATH, buildLoginPageUrl, buildReturnToPath } from "
 import { fetchMe } from "./api.js";
 
 const SHELL_COLLAPSE_STORAGE_KEY = "ss_developer_sidebar_collapsed";
+const SHELL_PAGE_CLASS = "developer-shell-page";
 
 function setActiveNav(navKey) {
   document.querySelectorAll("[data-nav], [data-shell-nav], #app-nav li[data-view]").forEach((link) => {
@@ -115,7 +116,6 @@ function closeOtherMenus(except = null) {
   document.querySelectorAll("[data-user-menu]").forEach((menu) => {
     if (menu === except) return;
     menu.hidden = true;
-    menu.classList.add("hidden");
     const trigger = menu.parentElement?.querySelector("[data-user-trigger]");
     trigger?.parentElement?.classList.remove("is-open");
     trigger?.classList.remove("is-open");
@@ -135,69 +135,7 @@ function renderSignedOutSlot(slot) {
   slot.appendChild(signIn);
 }
 
-function renderSignedInSlot(slot, me) {
-  slot.innerHTML = "";
-  const developerAccess = getDeveloperConsoleAccess(me);
-  const creatorAllowed = isCreatorDashboardAllowed(me);
-  const adminAllowed = isAdminDashboardAllowed(me);
-  const menuId = `developer-user-menu-${Math.random().toString(36).slice(2, 10)}`;
-
-  const widget = document.createElement("div");
-  widget.className = "streamsuites-auth";
-
-  const trigger = document.createElement("div");
-  trigger.className = "streamsuites-auth-toggle";
-  trigger.setAttribute("data-user-trigger", "true");
-  trigger.setAttribute("role", "button");
-  trigger.setAttribute("tabindex", "0");
-  trigger.setAttribute("aria-haspopup", "menu");
-  trigger.setAttribute("aria-expanded", "false");
-  trigger.setAttribute("aria-controls", menuId);
-  trigger.setAttribute("aria-label", "Toggle user menu");
-
-  const avatar = document.createElement("div");
-  avatar.className = "streamsuites-auth-avatar";
-  const image = document.createElement("img");
-  const avatarUrl = getAvatarUrl(me);
-  image.src = avatarUrl || "/assets/icons/ui/profile.svg";
-  image.alt = "StreamSuites account avatar";
-  image.dataset.fallback = "/assets/icons/ui/profile.svg";
-  if (avatarUrl) {
-    image.classList.add("is-avatar");
-  }
-  avatar.appendChild(image);
-
-  const copy = document.createElement("div");
-  copy.className = "streamsuites-auth-meta";
-  copy.innerHTML = `
-    <span class="streamsuites-auth-name">
-      <span class="streamsuites-auth-name-text">${getDisplayName(me)}</span>
-      <span class="ss-role-badges" data-ss-badge-kind="role">
-        <img class="streamsuites-auth-tier-badge" src="${getTierBadgeSrc(me)}" alt="${getDisplayTier(me)} tier badge" />
-        <img class="streamsuites-auth-tier-badge streamsuites-auth-developer-badge" src="/assets/icons/ui/ss-developer.svg" alt="Developer access badge" />
-      </span>
-    </span>
-    <span class="streamsuites-auth-identity">${getEmail(me)}</span>
-  `;
-
-  trigger.append(avatar, copy);
-
-  const menu = document.createElement("div");
-  menu.id = menuId;
-  menu.className = "ss-user-menu hidden";
-  menu.hidden = true;
-  menu.setAttribute("role", "menu");
-  menu.setAttribute("data-user-menu", "true");
-
-  const overview = document.createElement("div");
-  overview.className = "ss-user-menu-overview";
-  for (const row of getAccountOverviewRows(me)) {
-    const item = document.createElement("div");
-    item.className = "ss-user-menu-overview-row";
-    item.innerHTML = `<span class="ss-user-menu-overview-label">${row.label}</span><span class="ss-user-menu-overview-value">${row.value}</span>`;
-    overview.appendChild(item);
-  }
-
+function buildShellMenuItems({ developerAccess, creatorAllowed, adminAllowed }) {
   const items = [
     developerAccess.allowed
       ? `<a class="ss-user-menu-item" href="/dashboard/" role="menuitem"><span class="ss-user-menu-item-icon" data-icon="dashboard" aria-hidden="true"></span>Developer Dashboard</a>`
@@ -218,19 +156,127 @@ function renderSignedInSlot(slot, me) {
       `<a class="ss-user-menu-item" href="https://admin.streamsuites.app/" role="menuitem" target="_blank" rel="noreferrer"><span class="ss-user-menu-item-icon" data-icon="admin" aria-hidden="true"></span>Admin Dashboard</a>`
     );
   }
+
   items.push(`<div class="ss-user-menu-divider" role="separator" aria-hidden="true"></div>`);
   items.push(
     `<button id="developer-auth-logout" type="button" class="ss-user-menu-item" role="menuitem" data-auth-logout="true"><span class="ss-user-menu-item-icon" data-icon="logout" aria-hidden="true"></span>Sign out</button>`
   );
+  return items;
+}
 
-  menu.append(overview);
-  menu.insertAdjacentHTML("beforeend", items.join(""));
+function buildStandaloneMenuItems({ developerAccess, creatorAllowed, adminAllowed }) {
+  const items = [
+    developerAccess.allowed
+      ? `<a class="user-menu-link" href="/dashboard/" role="menuitem">Developer Dashboard</a>`
+      : `<a class="user-menu-link" href="/feedback/" role="menuitem">Open feedback</a>`,
+    developerAccess.allowed
+      ? `<a class="user-menu-link" href="/reports/" role="menuitem">Reports Hub</a>`
+      : `<a class="user-menu-link" href="/beta/apply/" role="menuitem">Beta Apply</a>`,
+    `<a class="user-menu-link" href="/beta/" role="menuitem" target="_blank" rel="noreferrer">Beta Program</a>`,
+  ];
+
+  if (creatorAllowed) {
+    items.push(`<a class="user-menu-link" href="https://creator.streamsuites.app/" role="menuitem" target="_blank" rel="noreferrer">Creator Dashboard</a>`);
+  }
+  if (adminAllowed) {
+    items.push(`<a class="user-menu-link" href="https://admin.streamsuites.app/" role="menuitem" target="_blank" rel="noreferrer">Admin Dashboard</a>`);
+  }
+
+  items.push(`<button type="button" class="user-menu-action is-danger" role="menuitem" data-auth-logout="true">Sign out</button>`);
+  return items;
+}
+
+function renderSignedInSlot(slot, me, { shellMode = false } = {}) {
+  slot.innerHTML = "";
+  const developerAccess = getDeveloperConsoleAccess(me);
+  const creatorAllowed = isCreatorDashboardAllowed(me);
+  const adminAllowed = isAdminDashboardAllowed(me);
+  const menuId = `developer-user-menu-${Math.random().toString(36).slice(2, 10)}`;
+
+  const widget = document.createElement("div");
+  widget.className = shellMode ? "streamsuites-auth" : "user-widget";
+
+  const trigger = document.createElement("div");
+  trigger.className = shellMode ? "streamsuites-auth-toggle" : "user-trigger";
+  trigger.setAttribute("data-user-trigger", "true");
+  trigger.setAttribute("role", "button");
+  trigger.setAttribute("tabindex", "0");
+  trigger.setAttribute("aria-haspopup", "menu");
+  trigger.setAttribute("aria-expanded", "false");
+  trigger.setAttribute("aria-controls", menuId);
+  trigger.setAttribute("aria-label", "Toggle user menu");
+
+  const avatar = document.createElement("div");
+  avatar.className = shellMode ? "streamsuites-auth-avatar" : "user-avatar";
+  const image = document.createElement("img");
+  const avatarUrl = getAvatarUrl(me);
+  image.src = avatarUrl || "/assets/icons/ui/profile.svg";
+  image.alt = "StreamSuites account avatar";
+  image.dataset.fallback = "/assets/icons/ui/profile.svg";
+  if (avatarUrl) {
+    image.classList.add("is-avatar");
+  }
+  avatar.appendChild(image);
+
+  const copy = document.createElement("div");
+  copy.className = shellMode ? "streamsuites-auth-meta" : "user-copy";
+  copy.innerHTML = shellMode
+    ? `
+        <span class="streamsuites-auth-name">
+          <span class="streamsuites-auth-name-text">${getDisplayName(me)}</span>
+          <span class="ss-role-badges" data-ss-badge-kind="role">
+            <img class="streamsuites-auth-tier-badge" src="${getTierBadgeSrc(me)}" alt="${getDisplayTier(me)} tier badge" />
+            <img class="streamsuites-auth-tier-badge streamsuites-auth-developer-badge" src="/assets/icons/ui/ss-developer.svg" alt="Developer access badge" />
+          </span>
+        </span>
+        <span class="streamsuites-auth-identity">${getEmail(me)}</span>
+      `
+    : `
+        <span class="user-name">${getDisplayName(me)}</span>
+        <span class="user-meta">${getIdentitySummary(me)}</span>
+      `;
+
+  trigger.append(avatar, copy);
+
+  const menu = document.createElement("div");
+  menu.id = menuId;
+  menu.className = shellMode ? "ss-user-menu" : "user-menu";
+  menu.hidden = true;
+  menu.setAttribute("role", "menu");
+  menu.setAttribute("data-user-menu", "true");
+
+  const overview = document.createElement("div");
+  overview.className = shellMode ? "ss-user-menu-overview" : "user-menu-overview";
+  for (const row of getAccountOverviewRows(me)) {
+    const item = document.createElement("div");
+    item.className = shellMode ? "ss-user-menu-overview-row" : "user-menu-overview-row";
+    item.innerHTML = shellMode
+      ? `<span class="ss-user-menu-overview-label">${row.label}</span><span class="ss-user-menu-overview-value">${row.value}</span>`
+      : `<span class="user-menu-overview-label">${row.label}</span><span class="user-menu-overview-value">${row.value}</span>`;
+    overview.appendChild(item);
+  }
+
+  if (shellMode) {
+    menu.append(overview);
+    menu.insertAdjacentHTML("beforeend", buildShellMenuItems({ developerAccess, creatorAllowed, adminAllowed }).join(""));
+  } else {
+    const header = document.createElement("div");
+    header.className = "user-menu-header";
+    header.innerHTML = `
+      <span class="user-menu-name">${getDisplayName(me)}</span>
+      <span class="user-menu-email">${getEmail(me)}</span>
+      <span class="user-menu-role">${getIdentitySummary(me)}</span>
+    `;
+    const links = document.createElement("div");
+    links.className = "user-menu-links";
+    links.innerHTML = buildStandaloneMenuItems({ developerAccess, creatorAllowed, adminAllowed }).join("");
+    menu.append(header, overview, links);
+  }
 
   function toggleMenu() {
     const nextOpen = menu.hidden;
     closeOtherMenus(nextOpen ? menu : null);
     menu.hidden = !nextOpen;
-    menu.classList.toggle("hidden", !nextOpen);
     widget.classList.toggle("is-open", nextOpen);
     trigger.classList.toggle("is-open", nextOpen);
     trigger.setAttribute("aria-expanded", nextOpen ? "true" : "false");
@@ -249,14 +295,14 @@ function renderSignedInSlot(slot, me) {
   slot.appendChild(widget);
 }
 
-function renderAuthState(me) {
+function renderAuthState(me, options = {}) {
   document.querySelectorAll("[data-auth-slot], #auth-slot").forEach((slot) => {
     if (!(slot instanceof HTMLElement)) return;
     if (!me?.authenticated) {
       renderSignedOutSlot(slot);
       return;
     }
-    renderSignedInSlot(slot, me);
+    renderSignedInSlot(slot, me, options);
   });
 }
 
@@ -267,7 +313,7 @@ function bindGlobalAuthUi() {
   document.addEventListener("click", (event) => {
     const target = event.target;
     if (!(target instanceof Node)) return;
-    const menu = target instanceof Element ? target.closest(".streamsuites-auth") : null;
+    const menu = target instanceof Element ? target.closest(".streamsuites-auth, .user-widget") : null;
     if (menu) return;
     closeOtherMenus();
   });
@@ -279,6 +325,7 @@ function bindGlobalAuthUi() {
 }
 
 function bindAdminStyleShell() {
+  if (!document.body.classList.contains(SHELL_PAGE_CLASS)) return;
   if (document.body.dataset.shellUiBound === "true") return;
   document.body.dataset.shellUiBound = "true";
 
@@ -331,22 +378,32 @@ function bindAdminStyleShell() {
   setCollapsed(document.documentElement.classList.contains("ss-sidebar-collapsed"));
 }
 
-export async function initConsolePage({
+function clearStandaloneShellState() {
+  document.documentElement.classList.remove("ss-sidebar-collapsed");
+  document.body.classList.remove("ss-sidebar-collapsed");
+}
+
+async function initPage({
   navKey,
   authRequired = false,
   developerRequired = false,
   statusTargetId = "page-status",
+  shellMode = false,
 } = {}) {
   setActiveNav(navKey);
   document.querySelectorAll("[data-year]").forEach((el) => {
     el.textContent = String(new Date().getFullYear());
   });
 
-  bindAdminStyleShell();
+  if (shellMode) {
+    bindAdminStyleShell();
+  } else {
+    clearStandaloneShellState();
+  }
   bindGlobalAuthUi();
 
   const me = await fetchMe();
-  renderAuthState(me);
+  renderAuthState(me, { shellMode });
 
   const statusEl = document.getElementById(statusTargetId);
   if (authRequired && !me?.authenticated) {
@@ -369,6 +426,14 @@ export async function initConsolePage({
   }
 
   return { me, blocked: false, developerCapable, developerAccess };
+}
+
+export async function initShellPage(options = {}) {
+  return initPage({ ...options, shellMode: true });
+}
+
+export async function initStandalonePage(options = {}) {
+  return initPage({ ...options, shellMode: false });
 }
 
 export function createInlineTurnstileController({

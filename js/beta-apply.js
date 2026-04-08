@@ -1,5 +1,5 @@
 import { fetchJson } from "./api.js";
-import { createInlineTurnstileController, initConsolePage } from "./auth.js";
+import { createInlineTurnstileController, initStandalonePage } from "./auth.js";
 
 const formEl = document.getElementById("beta-apply-form");
 const statusEl = document.getElementById("beta-apply-status");
@@ -9,7 +9,7 @@ const turnstileController = createInlineTurnstileController({
   status: document.getElementById("beta-apply-turnstile-status"),
 });
 
-await initConsolePage({ navKey: "beta" });
+await initStandalonePage({ navKey: "beta" });
 await turnstileController.init().catch(() => {
   // The controller handles inline status messaging when the widget cannot load.
 });

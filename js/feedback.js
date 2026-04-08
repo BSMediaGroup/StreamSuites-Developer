@@ -1,5 +1,5 @@
 import { fetchJson, fetchMe, setVoteToken } from "./api.js";
-import { createInlineTurnstileController, initConsolePage } from "./auth.js";
+import { createInlineTurnstileController, initStandalonePage } from "./auth.js";
 
 const requestListEl = document.getElementById("request-list");
 const requestStatusEl = document.getElementById("request-status");
@@ -103,7 +103,7 @@ formEl?.addEventListener("submit", async (event) => {
   }
 });
 
-await initConsolePage({ navKey: "feedback" });
+await initStandalonePage({ navKey: "feedback" });
 await turnstileController.init().catch(() => {
   // The controller handles inline status messaging when the widget cannot load.
 });

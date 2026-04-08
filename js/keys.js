@@ -1,6 +1,6 @@
-import { initConsolePage } from "./auth.js";
+import { initShellPage } from "./auth.js";
 
-await initConsolePage({
+await initShellPage({
   navKey: "keys",
   authRequired: true,
   developerRequired: true,

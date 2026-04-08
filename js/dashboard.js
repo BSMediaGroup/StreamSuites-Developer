@@ -1,6 +1,6 @@
-import { initConsolePage } from "./auth.js";
+import { initShellPage } from "./auth.js";
 
-const page = await initConsolePage({
+const page = await initShellPage({
   navKey: "dashboard",
   authRequired: true,
   developerRequired: true,

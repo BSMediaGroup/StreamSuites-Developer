@@ -1,5 +1,22 @@
 # Bump Notes
 
+## Standalone Route Shell Containment Fix - 2026-04-09
+
+### Technical Notes
+
+- Root-caused the `/reports/submit` shell bleed to the shared page bootstrap in `js/auth.js`: every route, including standalone routes, still ran the authenticated shell initializer and still received the shell-only signed-in account widget markup. That left shell state and shell-specific UI classes active outside the intended shell boundary even when the standalone HTML itself was separate.
+- Split the shared bootstrap into explicit `initShellPage` and `initStandalonePage` exports in `js/auth.js` so only `/dashboard`, `/reports`, and `/keys` bind the sidebar/topbar shell behavior, collapse state, and shell-scoped account widget.
+- Updated the standalone routes and route scripts (`index.html`, `beta/index.html`, `login/index.html`, `login-success/index.html`, `js/beta-apply.js`, `js/feedback.js`, `js/report-submit.js`) to use the standalone initializer instead of the shell initializer, and updated the real shell routes (`js/dashboard.js`, `js/reports.js`, `js/keys.js`) to use the shell-only initializer explicitly.
+- Changed `/reports/submit` to identify itself as a standalone route instead of reusing the shell `reports` nav key, and cleared any shell collapse classes on standalone boot so shell layout state cannot ride along onto standalone documents.
+- Restored a standalone-specific signed-in menu render path in `js/auth.js` using the existing public `user-widget` / `user-menu` styling instead of injecting shell-only `streamsuites-auth` / `ss-user-menu` markup into standalone headers.
+- Expanded `tests/developer-access-gating.test.mjs` so the repo now asserts the shell-vs-standalone bootstrap split and verifies that `/feedback`, `/beta`, `/beta/apply`, `/reports/submit`, `/login`, and `/login-success` stay structurally outside the authenticated shell.
+
+### Human-Readable Notes
+
+- The Developer shell is now route-bound again instead of leaking shared shell behavior into standalone pages.
+- `/reports/submit` and the other standalone pages keep their lighter standalone header treatment.
+- `/dashboard`, `/reports`, and `/keys` still use the authenticated shell.
+
 ## Admin-Shell Parity + Structured Developer Report Form - 2026-04-09
 
 ### Technical Notes
