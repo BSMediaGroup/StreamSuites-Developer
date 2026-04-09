@@ -84,8 +84,23 @@ test("developer fetchMe merges auth session identity fields when /api/me omits t
   assert.match(apiJs, /\/auth\/session/);
   assert.match(apiJs, /needsSessionMerge/);
   assert.match(apiJs, /session\.email/);
-  assert.match(apiJs, /session\.name/);
-  assert.match(apiJs, /session\.user_code/);
+  assert.match(apiJs, /session\.user\?\.email/);
+  assert.match(apiJs, /session\.user\?\.display_name/);
+  assert.match(apiJs, /session\.user\?\.user_code/);
+  assert.match(apiJs, /session,/);
+});
+
+test("developer shell identity resolves nested auth session user email before fallback text", () => {
+  const authJs = read("js/auth.js");
+  assert.match(authJs, /me\?\.session\?\.user\?\.email/);
+  assert.match(authJs, /me\?\.session\?\.user\?\.display_name/);
+  assert.match(authJs, /fallback = "Email unavailable"/);
+  assert.doesNotMatch(authJs, /fallback = "Signed in"/);
+});
+
+test("developer shell brand title is pinned to exactly 16px", () => {
+  const appCss = read("css/app.css");
+  assert.match(appCss, /\.developer-shell-page \.ss-sidebar-brand \.app-title\s*\{[\s\S]*font-size: 16px;/);
 });
 
 test("standalone routes stay structurally outside the authenticated shell", () => {

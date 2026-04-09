@@ -52,11 +52,39 @@ export async function fetchMe() {
 
   return {
     ...me,
-    email: me.email || session.email || session.user_email || null,
-    display_name: me.display_name || session.display_name || session.name || null,
-    user_code: me.user_code || session.user_code || null,
-    role: me.role || session.role || null,
-    tier: me.tier || session.tier || null,
+    session,
+    email:
+      me.email ||
+      session.email ||
+      session.user_email ||
+      session.user?.email ||
+      session.user?.user_email ||
+      session.user?.primary_email ||
+      null,
+    display_name:
+      me.display_name ||
+      session.display_name ||
+      session.name ||
+      session.user?.display_name ||
+      session.user?.name ||
+      null,
+    user_code:
+      me.user_code ||
+      session.user_code ||
+      session.user?.user_code ||
+      null,
+    role:
+      me.role ||
+      session.role ||
+      session.user?.role ||
+      session.user?.access_class ||
+      null,
+    tier:
+      me.tier ||
+      session.tier ||
+      session.user?.tier ||
+      session.user?.effective_tier?.tier ||
+      null,
   };
 }
 

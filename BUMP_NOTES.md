@@ -1,5 +1,21 @@
 # Bump Notes
 
+## Developer Widget Email Source + 16px Brand Title Rejection Fix - 2026-04-09
+
+### Technical Notes
+
+- Root-caused the collapsed Developer shell widget still rendering `Signed in` to the Developer-only identity merge path in `js/api.js`: `/auth/session` exposes the authenticated identity under `payload.user.email` / `payload.user.display_name` / `payload.user.user_code`, but the previous Developer merge only read flat `session.email` / `session.name` / `session.user_code`, so the shell resolver missed the real email and dropped into its generic fallback text.
+- Updated `js/api.js` to keep the fetched `/auth/session` payload on `me.session` and to merge the nested `session.user.*` identity fields into the Developer `me` object using the same real email/name/user-code source family the Admin dashboard consumes.
+- Tightened `js/auth.js` so the shell widget and dropdown identity helpers now read `me.session.user.email` and `me.session.user.display_name` before any fallback, and replaced the old generic `"Signed in"` email fallback with the narrower `"Email unavailable"` fallback that only appears when no real email exists anywhere in the authenticated payload.
+- Corrected `css/app.css` so `.developer-shell-page .ss-sidebar-brand .app-title` is now exactly `16px`; no other shell heading selectors were changed.
+- Expanded `tests/developer-access-gating.test.mjs` to lock the real nested `/auth/session` user-field merge path, the removal of the `"Signed in"` email fallback, and the exact `16px` brand-title rule.
+- No `StreamSuites` runtime/shared-session change was required. The existing `/auth/session` contract already exposed the needed real email under `user.email`; the rejection was in the Developer consumer path.
+
+### Human-Readable Notes
+
+- The collapsed Developer user widget now resolves the real account email from the authenticated session instead of falling back to `Signed in`.
+- The StreamSuites sidebar title is now exactly `16px`.
+
 ## Admin Widget and Status Tooltip Parity Correction - 2026-04-09
 
 ### Technical Notes

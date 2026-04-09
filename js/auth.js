@@ -56,6 +56,9 @@ function getDisplayName(me) {
       me?.display_name,
       me?.displayName,
       me?.name,
+      me?.session?.user?.display_name,
+      me?.session?.user?.displayName,
+      me?.session?.user?.name,
       me?.user?.display_name,
       me?.user?.displayName,
       me?.user?.name,
@@ -74,6 +77,10 @@ function getEmail(me) {
     me?.user_email,
     me?.primary_email,
     me?.session?.email,
+    me?.session?.user_email,
+    me?.session?.user?.email,
+    me?.session?.user?.user_email,
+    me?.session?.user?.primary_email,
     me?.user?.email,
     me?.user?.user_email,
     me?.account?.email,
@@ -243,7 +250,7 @@ function getAccountTypeValue(me) {
     : "Account";
 }
 
-function getEmailValue(me, { fallback = "Signed in" } = {}) {
+function getEmailValue(me, { fallback = "Email unavailable" } = {}) {
   const email = getEmail(me);
   return email || fallback;
 }
