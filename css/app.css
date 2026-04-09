@@ -908,7 +908,7 @@ textarea { min-height: 120px; resize: vertical; }
 }
 
 .developer-shell-page .ss-sidebar-brand {
-  padding: 10px 4px 10px;
+  padding: 14px 14px 14px;
   border-bottom: 1px solid var(--border-subtle);
 }
 
@@ -922,7 +922,7 @@ textarea { min-height: 120px; resize: vertical; }
 
 .developer-shell-page .ss-sidebar-brand .header-left img {
   width: auto;
-  height: 40px;
+  height: 44px;
   border-radius: 0;
 }
 
@@ -931,7 +931,7 @@ textarea { min-height: 120px; resize: vertical; }
   flex-direction: column;
   align-items: flex-start;
   justify-content: center;
-  gap: 6px;
+  gap: 4px;
   min-width: 0;
 }
 
@@ -945,7 +945,8 @@ textarea { min-height: 120px; resize: vertical; }
 
 .developer-shell-page .dashboard-badge {
   display: inline-flex;
-  margin-top: 8px;
+  margin: 0;
+  align-self: flex-start;
   padding: 2px 6px;
   border-radius: 4px;
   border: 1px solid rgba(255, 255, 255, 0.15);
@@ -1368,6 +1369,7 @@ textarea { min-height: 120px; resize: vertical; }
 
 .developer-shell-page .streamsuites-auth-name-text,
 .developer-shell-page .streamsuites-auth-identity {
+  display: inline-block;
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1385,6 +1387,10 @@ textarea { min-height: 120px; resize: vertical; }
   display: inline-flex;
   align-items: center;
   gap: 4px;
+}
+
+.developer-shell-page .streamsuites-auth-tier {
+  display: none;
 }
 
 .developer-shell-page .streamsuites-auth-tier-badge {
@@ -1433,7 +1439,7 @@ textarea { min-height: 120px; resize: vertical; }
   right: 0;
   left: auto;
   z-index: 1400;
-  width: min(280px, calc(100vw - 24px));
+  width: min(260px, calc(100vw - 24px));
   border-radius: 14px;
   border: 1px solid var(--border-subtle);
   background: linear-gradient(180deg, rgba(18, 22, 30, 0.96), rgba(18, 22, 30, 0.9));
@@ -1481,6 +1487,13 @@ textarea { min-height: 120px; resize: vertical; }
   text-align: right;
   font-size: 11px;
   color: var(--text-primary);
+  overflow-wrap: anywhere;
+}
+
+.developer-shell-page .ss-user-menu-overview-value.tier-pill {
+  justify-self: end;
+  text-align: left;
+  overflow-wrap: normal;
 }
 
 .developer-shell-page .ss-user-menu-item {
@@ -1562,6 +1575,150 @@ textarea { min-height: 120px; resize: vertical; }
   height: 1px;
   margin: 4px;
   background: var(--border-subtle);
+}
+
+.developer-shell-page .tier-pill {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  --tier-pill-pad-y: 2px;
+  --tier-pill-pad-x: 6px;
+  --tier-pill-border-size: 1.2px;
+  padding: var(--tier-pill-pad-y) var(--tier-pill-pad-x);
+  border-radius: 999px;
+  background: var(--tier-pill-bg, rgba(123, 140, 255, 0.2));
+  color: var(--tier-pill-text, #e6f0ff);
+  font-family: "SuiGeneris", system-ui, sans-serif;
+  font-weight: 500;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  text-shadow: 0 1px 8px rgba(5, 8, 14, 0.5);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.28),
+    0 0 12px var(--tier-pill-glow, rgba(5, 10, 24, 0.35));
+  backdrop-filter: blur(12px);
+  overflow: hidden;
+  isolation: isolate;
+  border: var(--tier-pill-border-size) solid
+    var(--tier-pill-border, rgba(140, 170, 255, 0.45));
+}
+
+.developer-shell-page .tier-pill::before,
+.developer-shell-page .tier-pill::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+.developer-shell-page .tier-pill::before {
+  top: 50%;
+  left: 50%;
+  width: 140%;
+  height: 140%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(
+    circle,
+    var(--tier-pill-glow, rgba(5, 10, 24, 0.35)) 0%,
+    rgba(5, 10, 24, 0) 62%
+  );
+  filter: blur(12px);
+  opacity: 0.9;
+  z-index: 0;
+}
+
+.developer-shell-page .tier-pill-content {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  z-index: 2;
+}
+
+.developer-shell-page .tier-pill-icon {
+  height: 13px;
+  width: auto;
+  display: block;
+  opacity: 0.85;
+}
+
+.developer-shell-page .tier-pill-text {
+  display: inline-block;
+}
+
+.developer-shell-page .tier-pill::after {
+  inset: 0;
+  background: linear-gradient(
+    120deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.26) 45%,
+    rgba(255, 255, 255, 0.3) 50%,
+    rgba(255, 255, 255, 0) 62%
+  );
+  opacity: 0;
+  transform: translateX(-140%);
+  filter: blur(0.6px);
+  z-index: 3;
+}
+
+.developer-shell-page .tier-pill[data-tier="CORE"] {
+  --tier-pill-bg: linear-gradient(135deg, rgba(92, 176, 188, 0.24), rgba(62, 130, 150, 0.14));
+  --tier-pill-glow: rgba(72, 160, 170, 0.22);
+  --tier-pill-text: #d7f3f4;
+  --tier-pill-border: rgba(101, 194, 207, 0.6);
+}
+
+.developer-shell-page .tier-pill[data-tier="GOLD"] {
+  --tier-pill-bg: linear-gradient(135deg, rgba(255, 198, 84, 0.42), rgba(255, 232, 164, 0.12));
+  --tier-pill-glow: rgba(255, 195, 92, 0.4);
+  --tier-pill-text: #fff3c9;
+  --tier-pill-border: rgba(255, 210, 110, 0.65);
+}
+
+.developer-shell-page .tier-pill[data-tier="PRO"] {
+  --tier-pill-bg: linear-gradient(
+    130deg,
+    rgba(255, 88, 204, 0.45),
+    rgba(132, 102, 255, 0.24) 55%,
+    rgba(80, 160, 255, 0.24)
+  );
+  --tier-pill-glow: rgba(170, 90, 255, 0.45);
+  --tier-pill-text: #ffe1ff;
+  --tier-pill-border: rgba(255, 110, 214, 0.65);
+}
+
+.developer-shell-page .tier-pill[data-tier="DEVELOPER"] {
+  --tier-pill-bg: linear-gradient(135deg, rgba(103, 193, 36, 0.38), rgba(189, 233, 102, 0.14));
+  --tier-pill-glow: rgba(143, 217, 72, 0.34);
+  --tier-pill-text: #f3ffd5;
+  --tier-pill-border: rgba(171, 226, 88, 0.62);
+}
+
+.developer-shell-page .tier-pill:hover::after {
+  opacity: 0.32;
+  animation: tier-glass-sheen 3.2s cubic-bezier(0.2, 0.8, 0.3, 1) infinite;
+}
+
+@keyframes tier-glass-sheen {
+  0% {
+    transform: translateX(-140%);
+  }
+  100% {
+    transform: translateX(140%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .developer-shell-page .tier-pill::after {
+    animation: none !important;
+  }
+
+  .developer-shell-page .tier-pill:hover::after {
+    animation: none !important;
+    transform: translateX(0);
+  }
 }
 
 .developer-shell-page .developer-view-stack {

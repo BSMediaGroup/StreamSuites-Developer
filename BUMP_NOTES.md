@@ -1,5 +1,24 @@
 # Bump Notes
 
+## Admin Widget and Status Tooltip Parity Correction - 2026-04-09
+
+### Technical Notes
+
+- Corrected the Developer shell brand lockup in `css/app.css` to use the Admin-family sidebar header spacing model: restored the full brand block padding, aligned the logo/title/chip group back onto the standard left edge, increased the logo height to the family value, and reduced the title-to-chip gap by removing the extra Developer-only top offset on the subtitle chip.
+- Reworked the shell-only authenticated widget renderer in `js/auth.js` so the collapsed trigger now matches Admin behavior: primary text is always the display name, secondary text is always the resolved account email, and the old role-tier summary string is no longer used in the collapsed shell state.
+- Tightened Developer-side identity sourcing in `js/auth.js` so the widget resolves email/name/role from the same broader account/session field family used across the platform surfaces instead of falling back to the old `Unavailable` placeholder when the authenticated email is present on adjacent fields.
+- Ported the Creator-family tier-pill rendering into the Developer shell dropdown in `js/auth.js` and `css/app.css`, so the Tier row now uses the real icon-plus-label chip treatment rather than plain text.
+- Normalized the Developer dropdown account-type row in `js/auth.js` to use family wording rules (`Administrator`, `Creator`, `Developer`, etc.) instead of the previous improvised role-tier summary formatting.
+- Replaced the Developer-only `css/status-widget.css` fork with the Admin Dashboard sizing/layout model. The widget logic already matched Admin; the tooltip was oversized because the Developer stylesheet had expanded the panel width, spacing, and placement behavior.
+- Expanded `tests/developer-access-gating.test.mjs` with shell-parity assertions for the tier-pill renderer, the removal of the `Unavailable` email fallback, and the restored Admin-style status tooltip structure.
+- No `StreamSuites` runtime or shared session payload change was required for this correction pass. The existing `/api/me` contract already exposes the identity and tier fields needed by the Developer shell.
+
+### Human-Readable Notes
+
+- The Developer shell brand block now lines up like the rest of the dashboard family and the `StreamSuites™` to `Developer Console` chip spacing is tighter.
+- The collapsed account widget now shows display name plus email, not role-plus-tier summary text.
+- The dropdown now shows the real styled tier chip, and the footer status tooltip is back to the Admin-sized footprint.
+
 ## Developer Shell Family-Parity Repair - 2026-04-09
 
 ### Technical Notes

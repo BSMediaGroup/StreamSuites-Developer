@@ -34,8 +34,10 @@ test("shared auth helpers consume runtime developer console access state and spl
   assert.match(authJs, /Creator Dashboard/);
   assert.match(authJs, /Admin Dashboard/);
   assert.match(authJs, /Open feedback/);
-  assert.match(authJs, /getCollapsedIdentityText/);
-  assert.match(authJs, /for \(const preferredKey of \["developer", "admin"\]\)/);
+  assert.match(authJs, /function renderTierPill/);
+  assert.match(authJs, /getEmailValue\(me\)/);
+  assert.match(authJs, /getAccountTypeValue/);
+  assert.doesNotMatch(authJs, /Unavailable/);
 });
 
 test("shell routes use the shell bootstrap and standalone routes use the standalone bootstrap", () => {
@@ -199,11 +201,16 @@ test("developer shell CSS includes dropdown hidden state, loader strip, and mobi
   const statusCss = read("css/status-widget.css");
 
   assert.match(appCss, /\.developer-shell-page \.ss-user-menu\[hidden\]/);
+  assert.match(appCss, /\.developer-shell-page \.tier-pill/);
+  assert.match(appCss, /\.developer-shell-page \.streamsuites-auth-tier \{/);
   assert.match(appCss, /\.ss-global-loader-bar/);
   assert.match(appCss, /\.developer-sidebar-scrim/);
   assert.match(appCss, /ss-sidebar-mobile-open/);
   assert.match(appCss, /@media \(max-width: 1200px\)/);
   assert.match(statusCss, /\.ss-status-indicator\[data-layout='inline'\]/);
+  assert.match(statusCss, /\.ss-status-component-item/);
+  assert.match(statusCss, /\.ss-status-header-title/);
+  assert.doesNotMatch(statusCss, /status-tooltip-legacy/);
 });
 
 test("developer repo carries local shell versioning and status utility files", () => {

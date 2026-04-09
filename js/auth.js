@@ -5,6 +5,17 @@ const SHELL_COLLAPSE_STORAGE_KEY = "ss_developer_sidebar_collapsed";
 const SHELL_PAGE_CLASS = "developer-shell-page";
 const SHELL_MOBILE_OPEN_CLASS = "ss-sidebar-mobile-open";
 const SHELL_MOBILE_BREAKPOINT = 980;
+const TIER_LABELS = new Map([
+  ["CORE", "CORE"],
+  ["CORETIER", "CORE"],
+  ["OPEN", "CORE"],
+  ["GOLD", "GOLD"],
+  ["GOLDTIER", "GOLD"],
+  ["PRO", "PRO"],
+  ["PROTIER", "PRO"],
+  ["DEVELOPER", "DEVELOPER"],
+  ["DEVELOPERTIER", "DEVELOPER"],
+]);
 const BADGE_ICON_SOURCES = new Map([
   ["admin", "/assets/icons/tierbadge-admin.svg"],
   ["core", "/assets/icons/tierbadge-core.svg"],
@@ -12,6 +23,21 @@ const BADGE_ICON_SOURCES = new Map([
   ["pro", "/assets/icons/tierbadge-pro.svg"],
   ["developer", "/assets/icons/dev-green.svg"],
 ]);
+const TIER_ICON_SOURCES = new Map([
+  ["core", "/assets/icons/tier-core.svg"],
+  ["gold", "/assets/icons/tier-gold.svg"],
+  ["pro", "/assets/icons/tier-pro.svg"],
+  ["developer", "/assets/icons/dev-green.svg"],
+]);
+
+function coerceText(...values) {
+  for (const value of values) {
+    if (typeof value !== "string") continue;
+    const text = value.trim();
+    if (text) return text;
+  }
+  return "";
+}
 
 function setActiveNav(navKey) {
   document.querySelectorAll("[data-nav], [data-shell-nav], #app-nav li[data-view]").forEach((link) => {
@@ -25,36 +51,85 @@ function setActiveNav(navKey) {
 }
 
 function getDisplayName(me) {
-  return me?.display_name || me?.name || me?.creator?.display_name || me?.email || me?.user_code || "Signed in";
+  return (
+    coerceText(
+      me?.display_name,
+      me?.displayName,
+      me?.name,
+      me?.user?.display_name,
+      me?.user?.displayName,
+      me?.user?.name,
+      me?.creator?.display_name,
+      me?.creator?.displayName,
+      getEmail(me),
+      me?.user_code,
+      me?.user?.user_code,
+    ) || "Signed in"
+  );
 }
 
 function getEmail(me) {
-  return (
-    me?.email ||
-    me?.user_email ||
-    me?.profile?.email ||
-    me?.creator?.email ||
-    ""
+  return coerceText(
+    me?.email,
+    me?.user_email,
+    me?.primary_email,
+    me?.session?.email,
+    me?.user?.email,
+    me?.user?.user_email,
+    me?.account?.email,
+    me?.profile?.email,
+    me?.creator?.email,
   );
 }
 
 function getRole(me) {
-  return me?.access_class || me?.role || "account";
+  return (
+    coerceText(
+      me?.account_type,
+      me?.access_class,
+      me?.role,
+      me?.user?.account_type,
+      me?.user?.access_class,
+      me?.user?.role,
+    ) || "account"
+  );
+}
+
+function normalizeTierLabel(value) {
+  const normalized = coerceText(value).toUpperCase().replace(/[\s_]+/g, "");
+  if (!normalized) return "CORE";
+  return TIER_LABELS.get(normalized) || "CORE";
 }
 
 function getTier(me) {
-  return me?.effective_tier?.display_tier_label || me?.effective_tier?.tier_label || me?.tier || "core";
+  return normalizeTierLabel(
+    coerceText(
+      me?.effective_tier?.display_tier_label,
+      me?.effective_tier?.displayTierLabel,
+      me?.effective_tier?.display_tier_id,
+      me?.effective_tier?.displayTierId,
+      me?.effective_tier?.tier_label,
+      me?.effective_tier?.tierLabel,
+      me?.effective_tier?.tier_id,
+      me?.effective_tier?.tierId,
+      me?.tier,
+      me?.user?.tier,
+    ) || "CORE"
+  );
 }
 
 function getDisplayTier(me) {
-  return String(getTier(me) || "").trim() || "Core";
+  return String(getTier(me) || "").trim() || "CORE";
 }
 
 function normalizeTierKey(value) {
-  const normalized = String(value || "").trim().toLowerCase();
+  const normalized = String(value || "").trim().toLowerCase().replace(/[\s_-]+/g, "");
   if (normalized === "gold") return "gold";
   if (normalized === "pro") return "pro";
   if (normalized === "developer") return "developer";
+  if (normalized === "goldtier") return "gold";
+  if (normalized === "protier") return "pro";
+  if (normalized === "developertier") return "developer";
   return "core";
 }
 
@@ -104,11 +179,9 @@ function normalizeAuthoritativeBadges(me) {
 
 function getCompactWidgetBadges(me) {
   const normalized = normalizeAuthoritativeBadges(me);
-  for (const preferredKey of ["developer", "admin"]) {
-    const roleBadge = normalized.find((badge) => badge?.key === preferredKey);
-    if (roleBadge) {
-      return [roleBadge];
-    }
+  const roleBadge = normalized.find((badge) => badge?.key === "admin" || badge?.key === "developer");
+  if (roleBadge) {
+    return [roleBadge];
   }
   const tierBadge = normalized.find((badge) => badge?.key === "core" || badge?.key === "gold" || badge?.key === "pro");
   return tierBadge ? [tierBadge] : [];
@@ -128,10 +201,6 @@ function buildCompactBadgeMarkup(me) {
       return `<img class="streamsuites-auth-tier-badge${extraClass}" src="${src}" alt="${badge.label}" title="${badge.title}" />`;
     })
     .join("");
-}
-
-function getCollapsedIdentityText(me) {
-  return getEmail(me) || getIdentitySummary(me) || "Signed in";
 }
 
 function getIdentitySummary(me) {
@@ -161,13 +230,22 @@ function getTierBadgeSrc(me) {
 }
 
 function getAccountTypeValue(me) {
-  const accountType = String(me?.account_type || getRole(me) || "account").trim();
-  return accountType || "account";
+  const normalizedRole = String(getRole(me) || "").trim().toLowerCase();
+  if (normalizedRole === "admin") return "Administrator";
+  if (normalizedRole === "creator") return "Creator";
+  if (normalizedRole === "developer") return "Developer";
+  if (normalizedRole === "moderator") return "Moderator";
+  const accountType = String(getRole(me) || "account").trim();
+  return accountType
+    ? accountType
+        .replace(/[_-]+/g, " ")
+        .replace(/\b\w/g, (character) => character.toUpperCase())
+    : "Account";
 }
 
-function getEmailValue(me) {
+function getEmailValue(me, { fallback = "Signed in" } = {}) {
   const email = getEmail(me);
-  return email || "Unavailable";
+  return email || fallback;
 }
 
 function getShellCollapsePreference() {
@@ -198,12 +276,43 @@ function buildFooterOverviewRows(me) {
     { label: "Display name", value: getDisplayName(me) },
     { label: "Email", value: getEmailValue(me) },
     { label: "Account type", value: getAccountTypeValue(me) },
-    { label: "Tier", value: getDisplayTier(me) },
+    { label: "Tier", value: getDisplayTier(me), type: "tier" },
   ];
 }
 
 function getAccountOverviewRows(me) {
   return buildFooterOverviewRows(me);
+}
+
+function renderTierPill(element, tierLabel) {
+  if (!element) return;
+  const normalizedTier = normalizeTierLabel(tierLabel);
+  const tierKey = normalizeTierKey(normalizedTier);
+  element.classList.add("tier-pill", "ss-role-badges");
+  element.dataset.tier = normalizedTier;
+  element.setAttribute("data-ss-badge-kind", "tier");
+
+  const content = document.createElement("span");
+  content.className = "tier-pill-content";
+
+  const iconSrc = TIER_ICON_SOURCES.get(tierKey);
+  if (iconSrc) {
+    const icon = document.createElement("img");
+    icon.className = "tier-pill-icon ss-tier-badge";
+    icon.src = iconSrc;
+    icon.alt = "";
+    icon.decoding = "async";
+    icon.setAttribute("aria-hidden", "true");
+    icon.setAttribute("data-ss-role-badge", tierKey);
+    content.appendChild(icon);
+  }
+
+  const text = document.createElement("span");
+  text.className = "tier-pill-text";
+  text.textContent = normalizedTier;
+  content.appendChild(text);
+
+  element.replaceChildren(content);
 }
 
 function getDeveloperConsoleAccess(me) {
@@ -358,22 +467,41 @@ function renderSignedInSlot(slot, me, { shellMode = false } = {}) {
 
   const copy = document.createElement("div");
   copy.className = shellMode ? "streamsuites-auth-meta" : "user-copy";
-  copy.innerHTML = shellMode
-    ? `
-        <span class="streamsuites-auth-name">
-          <span class="streamsuites-auth-name-text">${getDisplayName(me)}</span>
-          <span class="ss-role-badges" data-ss-badge-kind="role">
-            ${buildCompactBadgeMarkup(me)}
-          </span>
-        </span>
-        <span class="streamsuites-auth-identity">${getCollapsedIdentityText(me)}</span>
-      `
-    : `
+  if (shellMode) {
+    const name = document.createElement("span");
+    name.className = "streamsuites-auth-name";
+    const nameText = document.createElement("span");
+    nameText.className = "streamsuites-auth-name-text";
+    nameText.textContent = getDisplayName(me);
+    name.appendChild(nameText);
+
+    const badges = document.createElement("span");
+    badges.className = "ss-role-badges";
+    badges.setAttribute("data-ss-badge-kind", "role");
+    badges.innerHTML = buildCompactBadgeMarkup(me);
+    name.appendChild(badges);
+
+    const identity = document.createElement("span");
+    identity.className = "streamsuites-auth-identity";
+    identity.textContent = getEmailValue(me);
+
+    copy.replaceChildren(name, identity);
+  } else {
+    copy.innerHTML = `
         <span class="user-name">${getDisplayName(me)}</span>
         <span class="user-meta">${getIdentitySummary(me)}</span>
       `;
+  }
 
   trigger.append(avatar, copy);
+
+  if (shellMode) {
+    const tier = document.createElement("span");
+    tier.className = "streamsuites-auth-tier";
+    tier.dataset.tier = getDisplayTier(me);
+    tier.textContent = getDisplayTier(me);
+    trigger.appendChild(tier);
+  }
 
   const menu = document.createElement("div");
   menu.id = menuId;
@@ -387,9 +515,23 @@ function renderSignedInSlot(slot, me, { shellMode = false } = {}) {
   for (const row of getAccountOverviewRows(me)) {
     const item = document.createElement("div");
     item.className = shellMode ? "ss-user-menu-overview-row" : "user-menu-overview-row";
-    item.innerHTML = shellMode
-      ? `<span class="ss-user-menu-overview-label">${row.label}</span><span class="ss-user-menu-overview-value">${row.value}</span>`
-      : `<span class="user-menu-overview-label">${row.label}</span><span class="user-menu-overview-value">${row.value}</span>`;
+    if (shellMode) {
+      const label = document.createElement("span");
+      label.className = "ss-user-menu-overview-label";
+      label.textContent = row.label;
+
+      const value = document.createElement("span");
+      value.className = "ss-user-menu-overview-value";
+      if (row.type === "tier") {
+        renderTierPill(value, row.value);
+      } else {
+        value.textContent = row.value;
+      }
+
+      item.append(label, value);
+    } else {
+      item.innerHTML = `<span class="user-menu-overview-label">${row.label}</span><span class="user-menu-overview-value">${row.value}</span>`;
+    }
     overview.appendChild(item);
   }
 
