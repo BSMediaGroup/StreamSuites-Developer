@@ -12,15 +12,11 @@
 
       try {
         const stored = window.localStorage.getItem(key);
-        if (stored === "1") {
+        if (stored === "1" && window.innerWidth > mobileBreakpoint) {
           collapsed = true;
-        } else if (stored === "0") {
-          collapsed = false;
-        } else {
-          collapsed = window.innerWidth <= mobileBreakpoint;
         }
       } catch (_error) {
-        collapsed = window.innerWidth <= mobileBreakpoint;
+        collapsed = false;
       }
 
       if (collapsed) {
@@ -30,6 +26,7 @@
   </script>
   <link rel="icon" href="/assets/logos/favicon.ico" />
   <link rel="stylesheet" href="/css/app.css" />
+  <link rel="stylesheet" href="/css/status-widget.css" />
 </head>
 <body class="developer-shell-page">
   <div id="app">
@@ -78,6 +75,7 @@
         </ul>
       </div>
     </aside>
+    <button type="button" id="developer-sidebar-scrim" class="developer-sidebar-scrim" aria-hidden="true" hidden tabindex="-1"></button>
     <div class="ss-main">
       <header id="app-header" class="ss-topbar">
         <div class="ss-topbar-left">
@@ -113,6 +111,18 @@
           </div>
         </div>
       </header>
+      <div
+        id="global-loader"
+        class="ss-global-loader"
+        role="status"
+        aria-live="polite"
+        aria-hidden="true"
+      >
+        <div class="ss-global-loader-track" aria-hidden="true">
+          <span class="ss-global-loader-bar"></span>
+        </div>
+        <span id="global-loader-text" class="ss-global-loader-text">Loading...</span>
+      </div>
       <main id="app-main">
         <div id="view-container">
           <section class="main-stack developer-view-stack">
@@ -143,10 +153,15 @@
         </a>
       </div>
       <div class="footer-right">
-        <span id="app-status" class="status-indicator active footer-active-pill">ready</span>
+        <span id="app-status" class="status-indicator idle footer-active-pill">idle</span>
+        <span class="footer-status-slot" data-status-slot data-status-slot-mode="inline"></span>
       </div>
     </footer>
   </div>
+  <script src="/js/utils/versioning.js"></script>
+  <script src="/js/utils/version-stamp.js"></script>
+  <script src="/js/utils/global-loader.js"></script>
+  <script src="/js/status-widget.js" defer></script>
   <script type="module" src="/js/keys.js"></script>
 </body>
 </html>

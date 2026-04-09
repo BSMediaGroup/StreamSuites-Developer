@@ -64,7 +64,8 @@ StreamSuites-Developer/
 │   └── apply/
 │       └── index.html
 ├── css/
-│   └── app.css
+│   ├── app.css
+│   └── status-widget.css
 ├── dashboard/
 │   └── index.html
 ├── feedback/
@@ -90,7 +91,12 @@ StreamSuites-Developer/
 │   ├── login.js
 │   ├── report-surface-catalog.mjs
 │   ├── report-submit.js
-│   └── reports.js
+│   ├── reports.js
+│   ├── status-widget.js
+│   └── utils/
+│       ├── global-loader.js
+│       ├── version-stamp.js
+│       └── versioning.js
 ├── keys/
 │   └── index.html
 ├── login/
@@ -104,6 +110,9 @@ StreamSuites-Developer/
 │   ├── index.html
 │   └── submit/
 │       └── index.html
+├── runtime/
+│   └── exports/
+│       └── version.json
 ├── tests/
 │   └── developer-access-gating.test.mjs
 └── assets/

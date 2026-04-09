@@ -1,5 +1,24 @@
 # Bump Notes
 
+## Developer Shell Family-Parity Repair - 2026-04-09
+
+### Technical Notes
+
+- Root-caused the stuck-open account dropdown to the Developer shell CSS branch, not the session logic: the shell menu rendered with the `hidden` attribute but `css/app.css` never re-applied a shell-scoped `[hidden] { display: none; }` rule for `.ss-user-menu`, so the authored flex layout overrode the browser default and left the panel visibly open.
+- Reworked the authenticated shell branch in `css/app.css`, `js/auth.js`, `dashboard/index.html`, `reports/index.html`, and `keys/index.html` to match the Admin/Creator family more closely: sidebar brand spacing now follows the same narrower shell rhythm, the shell picks up the same `1200px` width reduction pattern, the top bar mounts the shared loader strip host, the footer now includes the Admin-style inline status-slot host, and mobile navigation now uses the family off-canvas drawer plus scrim pattern instead of stacking the full sidebar into the document flow.
+- Fixed identity rendering by updating `js/api.js` to merge `/auth/session` identity fields into `/api/me` when the lighter Developer consumer lacks email/name/user-code data, then updated `js/auth.js` so the collapsed shell widget shows the real email when present and only falls back to account identity text when email is genuinely unavailable.
+- Replaced the old hard-coded `tier + developer` compact widget badges in `js/auth.js` with badge normalization from the runtime-owned `badges` array plus role-aware fallback logic, so developer-capable accounts now pick the same admin-vs-developer-vs-tier compact icon treatment used elsewhere in the dashboard family.
+- Added the missing local shell utility files `js/utils/global-loader.js`, `js/utils/versioning.js`, `js/utils/version-stamp.js`, `js/status-widget.js`, `css/status-widget.css`, and a local `runtime/exports/version.json` mirror so the Developer shell now loads the same class of version/build metadata, animated topbar loader, and inline status widget pattern as the working family surfaces without depending on another repo at runtime.
+- Tightened the dashboard-home hero rhythm in `css/app.css` by setting the protected-shell hero title to `16px`, reducing its bottom margin, and shrinking the subtitle gap without changing unrelated page headings.
+- Expanded `tests/developer-access-gating.test.mjs` with shell-parity assertions for the new loader/version/status assets, mobile drawer hooks, hidden dropdown contract, and `/auth/session` identity merge path.
+- No `StreamSuites` runtime/shared-state source change was required for this pass. The existing runtime already exposed the needed auth session identity and authoritative version export; the fix was in the Developer consumer and its missing local shell mirrors.
+
+### Human-Readable Notes
+
+- The Developer shell now follows the Admin/Creator family more closely instead of carrying its own broken sidebar, dropdown, and mobile behavior.
+- The account widget now closes properly, shows the real email when available, and uses the right compact role/tier icon for developer-capable accounts.
+- Footer version/status and the animated topbar loader are now present in the Developer shell as expected.
+
 ## Runtime Turnstile Kill-Switch Coverage - 2026-04-09
 
 ### Technical Notes

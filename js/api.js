@@ -26,8 +26,38 @@ export async function fetchJson(url, options = {}) {
   return payload;
 }
 
+async function fetchSessionSummary() {
+  return fetchJson("/auth/session", { method: "GET" }).catch(() => null);
+}
+
 export async function fetchMe() {
-  return fetchJson("/api/me", { method: "GET" }).catch(() => ({ authenticated: false }));
+  const me = await fetchJson("/api/me", { method: "GET" }).catch(() => ({ authenticated: false }));
+  if (!me?.authenticated) {
+    return { authenticated: false };
+  }
+
+  const needsSessionMerge =
+    !me?.email ||
+    !me?.display_name ||
+    !me?.user_code;
+
+  if (!needsSessionMerge) {
+    return me;
+  }
+
+  const session = await fetchSessionSummary();
+  if (!session || typeof session !== "object") {
+    return me;
+  }
+
+  return {
+    ...me,
+    email: me.email || session.email || session.user_email || null,
+    display_name: me.display_name || session.display_name || session.name || null,
+    user_code: me.user_code || session.user_code || null,
+    role: me.role || session.role || null,
+    tier: me.tier || session.tier || null,
+  };
 }
 
 export function setVoteToken(token) {

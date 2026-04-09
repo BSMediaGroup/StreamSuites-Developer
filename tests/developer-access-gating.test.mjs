@@ -21,6 +21,8 @@ test("shared auth helpers consume runtime developer console access state and spl
   assert.match(authJs, /developer_console_access/);
   assert.match(authJs, /admin_access/);
   assert.match(authJs, /creator_workspace_access/);
+  assert.match(authJs, /badges/);
+  assert.match(authJs, /SHELL_MOBILE_OPEN_CLASS/);
   assert.match(authJs, /access_class/);
   assert.match(authJs, /display_tier_label/);
   assert.match(authJs, /ss-user-menu-overview/);
@@ -32,7 +34,8 @@ test("shared auth helpers consume runtime developer console access state and spl
   assert.match(authJs, /Creator Dashboard/);
   assert.match(authJs, /Admin Dashboard/);
   assert.match(authJs, /Open feedback/);
-  assert.match(authJs, /developer-authorized StreamSuites account/);
+  assert.match(authJs, /getCollapsedIdentityText/);
+  assert.match(authJs, /for \(const preferredKey of \["developer", "admin"\]\)/);
 });
 
 test("shell routes use the shell bootstrap and standalone routes use the standalone bootstrap", () => {
@@ -58,13 +61,29 @@ test("authenticated console pages use the admin-style shell structure", () => {
     assert.match(html, /<body class="developer-shell-page">/);
     assert.match(html, /<div id="app">/);
     assert.match(html, /<aside id="app-nav" class="ss-sidebar">/);
+    assert.match(html, /id="developer-sidebar-scrim"/);
     assert.match(html, /id="app-nav-list"/);
     assert.match(html, /id="sidebar-collapse-toggle"/);
     assert.match(html, /id="app-header" class="ss-topbar"/);
+    assert.match(html, /id="global-loader"/);
     assert.match(html, /id="app-footer"/);
+    assert.match(html, /data-status-slot/);
+    assert.match(html, /js\/utils\/versioning\.js/);
+    assert.match(html, /js\/utils\/version-stamp\.js/);
+    assert.match(html, /js\/utils\/global-loader\.js/);
+    assert.match(html, /js\/status-widget\.js/);
     assert.match(html, /data-view="beta"/);
     assert.doesNotMatch(html, /class="console-sidebar"/);
   }
+});
+
+test("developer fetchMe merges auth session identity fields when /api/me omits them", () => {
+  const apiJs = read("js/api.js");
+  assert.match(apiJs, /\/auth\/session/);
+  assert.match(apiJs, /needsSessionMerge/);
+  assert.match(apiJs, /session\.email/);
+  assert.match(apiJs, /session\.name/);
+  assert.match(apiJs, /session\.user_code/);
 });
 
 test("standalone routes stay structurally outside the authenticated shell", () => {
@@ -173,4 +192,25 @@ test("developer login turnstile visibility still follows the runtime config cont
   assert.match(loginJs, /if \(!turnstileState\.enabled \|\| !turnstileSlotEl\)/);
   assert.match(loginJs, /if \(!turnstileState\.enabled\) return "";/);
   assert.match(appCss, /\.turnstile-panel\[hidden\]/);
+});
+
+test("developer shell CSS includes dropdown hidden state, loader strip, and mobile drawer parity hooks", () => {
+  const appCss = read("css/app.css");
+  const statusCss = read("css/status-widget.css");
+
+  assert.match(appCss, /\.developer-shell-page \.ss-user-menu\[hidden\]/);
+  assert.match(appCss, /\.ss-global-loader-bar/);
+  assert.match(appCss, /\.developer-sidebar-scrim/);
+  assert.match(appCss, /ss-sidebar-mobile-open/);
+  assert.match(appCss, /@media \(max-width: 1200px\)/);
+  assert.match(statusCss, /\.ss-status-indicator\[data-layout='inline'\]/);
+});
+
+test("developer repo carries local shell versioning and status utility files", () => {
+  assert.ok(fs.existsSync(path.join(repoRoot, "js/utils/global-loader.js")));
+  assert.ok(fs.existsSync(path.join(repoRoot, "js/utils/versioning.js")));
+  assert.ok(fs.existsSync(path.join(repoRoot, "js/utils/version-stamp.js")));
+  assert.ok(fs.existsSync(path.join(repoRoot, "js/status-widget.js")));
+  assert.ok(fs.existsSync(path.join(repoRoot, "css/status-widget.css")));
+  assert.ok(fs.existsSync(path.join(repoRoot, "runtime/exports/version.json")));
 });
