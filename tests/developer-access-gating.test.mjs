@@ -163,3 +163,14 @@ test("developer login keeps the key icon path and collapsed alternate surfaces",
   assert.match(appCss, /assets\/icons\/ui\/key\.svg/);
   assert.match(appCss, /surface-links__icon--public/);
 });
+
+test("developer login turnstile visibility still follows the runtime config contract", () => {
+  const loginJs = read("js/login.js");
+  const appCss = read("css/app.css");
+
+  assert.match(loginJs, /payload\?\.enabled === true/);
+  assert.match(loginJs, /turnstilePanelEl\.hidden = !turnstileState\.enabled/);
+  assert.match(loginJs, /if \(!turnstileState\.enabled \|\| !turnstileSlotEl\)/);
+  assert.match(loginJs, /if \(!turnstileState\.enabled\) return "";/);
+  assert.match(appCss, /\.turnstile-panel\[hidden\]/);
+});

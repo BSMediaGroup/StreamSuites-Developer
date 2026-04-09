@@ -1,5 +1,15 @@
 # Bump Notes
 
+## Runtime Turnstile Kill-Switch Coverage - 2026-04-09
+
+### Technical Notes
+
+- Added focused source coverage in `tests/developer-access-gating.test.mjs` so the Developer login surface remains bound to the runtime `/auth/turnstile/config` `enabled` state and still collapses the hidden Turnstile block cleanly when the runtime disables it.
+
+### Human-Readable Notes
+
+- Developer login still follows the runtime-owned Turnstile switch instead of carrying its own local override.
+
 ## Developer Report Surface Catalog Expansion - 2026-04-09
 
 ### Technical Notes
