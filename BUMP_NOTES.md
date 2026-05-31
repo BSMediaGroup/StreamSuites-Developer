@@ -153,7 +153,25 @@
 
 - Protected Developer routes still honor the runtime developer-access decision, but the console now presents Developer identity from the new account-class model instead of the retired fake plan tier.
 
-## CURRENT VER= 0.4.2-alpha / PENDING VER= 0.4.3-alpha
+## RELEASED / PACKAGED: 0.4.2-alpha
+
+Packaged / released and no longer the active pending bucket. Preserve new notes for the open `0.5.0-alpha` section below.
+
+## CURRENT VER= 0.5.0-alpha / PENDING VER= 0.5.1-alpha
+
+## Release Prep — v0.5.0-alpha
+
+- BUMP_NOTES.md updated with proper RELEASED 0.4.2-alpha archiving.
+- v0.5.0-CHANGELOG.md created covering shell parity, reports, and auth surface maturation.
+- Runtime export mirror aligned.
+- Master PROJECT changelog created in the runtime repo.
+
+### Files / Areas Touched
+
+- `BUMP_NOTES.md`
+- `changelog/v0.5.0-CHANGELOG.md` (new)
+- `README.md`
+- `runtime/exports/version.json`
 
 ### Developer Console First-Class Surface Auth Fix - 2026-04-04
 
