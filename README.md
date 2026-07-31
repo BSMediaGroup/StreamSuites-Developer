@@ -8,6 +8,14 @@ Developer-console web surface for StreamSuites, intended for deployment on Cloud
 - Authenticated developer-facing shell for the dashboard, reports hub, and later API-access tooling.
 - Static web surface only. Runtime state, auth, submissions, approvals, and future API key authority remain in `StreamSuites`.
 
+## Studio-first visual system
+
+- `css/app.css` now supplies the shared Studio-first typography and a technical graphite/violet console treatment with controlled orange attention states. The refresh covers the public landing, feedback, beta, login/success, authenticated dashboard, reports, report submission, keys placeholder, empty/loading/error states, tables, forms, metadata, and mobile drawer without creating a fake terminal or unsupported API-token UI.
+- Tektur is used for product and top-level console identity, Geist Sans for body copy and controls, and IBM Plex Mono for API-like paths, statuses, artifact/report metadata, IDs, timestamps, and code. Local files live at `assets/fonts/Tektur-VariableFont_wdth,wght.ttf`, `assets/fonts/Geist-{Light,Regular,Medium,SemiBold,Bold,ExtraBold}.ttf`, and `assets/fonts/mono/IBMPlexMono-{Light,Regular,Medium,SemiBold,Bold}.ttf`.
+- The files were copied byte-for-byte from the approved read-only Public font set. Genuine license files are `assets/fonts/GEISTMONOOFL.txt` and `assets/fonts/mono/IBMPLEXMONOOFL.txt`; no genuine Tektur license file is available locally, so font publication remains blocked.
+- The landing now presents the console as the technical gateway into Browser Studio, native StudioApp, Studio for OBS, and Runtime/Auth. Existing access gates, report/feedback endpoints, artifacts, aliases, sessions, fallbacks, and reserved `/keys` truthfulness are preserved.
+- Responsive layout, visible focus, table containment, and reduced motion are handled in `css/app.css`. Validation remains `node --test tests/*.test.mjs`; this static repository has no package build step.
+
 ## Authority Boundary
 
 - `StreamSuites` owns auth/session authority, authoritative validation, submission persistence, artifact handling, and admin-review APIs.
@@ -116,5 +124,12 @@ StreamSuites-Developer/
 ├── tests/
 │   └── developer-access-gating.test.mjs
 └── assets/
+    ├── fonts/
+    │   ├── Tektur-VariableFont_wdth,wght.ttf
+    │   ├── Geist-{Light,Regular,Medium,SemiBold,Bold,ExtraBold}.ttf
+    │   ├── GEISTMONOOFL.txt
+    │   └── mono/
+    │       ├── IBMPlexMono-{Light,Regular,Medium,SemiBold,Bold}.ttf
+    │       └── IBMPLEXMONOOFL.txt
     └── ... (existing shared brand/media asset tree, including icons/ui/ss-admin.svg, ss-creator.svg, ss-developer.svg, ss-public.svg)
 ```

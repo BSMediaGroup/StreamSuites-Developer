@@ -1,5 +1,18 @@
 # Bump Notes
 
+## Studio-first Developer Presentation - 2026-07-31
+
+### Technical Notes
+
+- Added the approved local Tektur, Geist Sans, and IBM Plex Mono font assets and reassigned the Developer surface's display, interface, and technical roles in `css/app.css`.
+- Refined landing, dashboard, report, application, authentication, table, form, focus, responsive, and reduced-motion presentation while preserving the existing route set and placeholder/availability truth.
+- Repositioned the landing copy around the current StreamSuites product family and Runtime/Auth boundary without inventing API access, credentials, reports, or production availability.
+- No repository-local version or build authority changed. Publication remains blocked on locating and confirming the redistribution license text for the supplied Tektur binary; no matching license was present in the approved local repositories or reference bundle.
+
+### Human-Readable Notes
+
+- Developer now reads as the technical console in the same product family, with clearer hierarchy and code/data treatment but no implied access beyond what the site currently provides.
+
 ## Developer Widget Email Source + 16px Brand Title Rejection Fix - 2026-04-09
 
 ### Technical Notes
