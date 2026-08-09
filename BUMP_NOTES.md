@@ -1,5 +1,17 @@
 # Bump Notes
 
+## Expanded Developer Widget Custom Metrics - 2026-08-09
+
+### Technical Notes
+
+- Added a two-card Atlassian custom-metrics section to the existing fully expanded authenticated-shell status widget. Core API response time displays only a finite measured Runtime/Auth diagnostic value, while Studio Room Readiness preserves the explicit deferred state and genuine-transaction explanation.
+- Added a bounded optional GET of Runtime/Auth's sanitized public status diagnostics alongside the official public Atlassian summary poll. Missing diagnostics produce unavailable cards and never fail or reinterpret Atlassian status; a prior in-memory reading is labelled stale.
+- Added responsive metric stacking and focused source regression coverage without changing shell routes, auth gates, component/incident rendering, the collapsed pill, Runtime/Auth source, version/build values, dependencies, or deployment configuration. No file was created or removed, and no Statuspage Manage API, API key, or write method was introduced.
+
+### Human-Readable Notes
+
+- The expanded Developer footer status now shows real Core API response time and the honest deferred Studio Room Readiness metric alongside the service details.
+
 ## Studio-first Developer Presentation - 2026-07-31
 
 ### Technical Notes

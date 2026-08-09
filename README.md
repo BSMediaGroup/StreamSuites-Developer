@@ -22,6 +22,7 @@ Developer-console web surface for StreamSuites, intended for deployment on Cloud
 - `StreamSuites-Dashboard` consumes the same runtime-owned intake records for admin review.
 - `StreamSuites-Public /requests` is expected to redirect here, to `https://console.streamsuites.app/feedback`.
 - This repo does not create an alternate identity system or canonical submission store.
+- The authenticated-shell footer status widget keeps Atlassian's public Status API as official state. Its fully expanded panel also reads Runtime/Auth's sanitized public diagnostics projection for exactly two configured Atlassian custom metrics: measured Core API response time and explicitly deferred Studio Room Readiness. Diagnostics remain optional, read-only, and unable to override official state.
 
 ## Routes
 
