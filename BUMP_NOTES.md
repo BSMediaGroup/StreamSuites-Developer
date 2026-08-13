@@ -184,6 +184,17 @@ Packaged / released and no longer the active pending bucket. Preserve new notes 
 
 ## CURRENT VER= 0.5.0-alpha / PENDING VER= 0.5.1-alpha
 
+### Blinker Body Typography - 2026-08-14
+
+#### Technical Notes
+
+- Registered the local Blinker fixed faces in `css/app.css` at truthful weights 100/200/300/400/600/700/800/900 with `font-display: swap` and changed only the interface/body token to Blinker. Existing 500 declarations remain unchanged for normal nearest-face selection.
+- Preserved Tektur product/title typography, Geist Sans secondary heading and display-fallback roles, IBM Plex Mono technical roles, every existing type metric, layout, route, access gate, API behavior, and Runtime/Auth boundary. No version, deployment, commit, or push change was made.
+
+#### Human-Readable Notes
+
+- Developer body copy and controls now use the bundled Blinker family, while headings and technical content keep their established typography.
+
 ## Release Prep — v0.5.0-alpha
 
 - BUMP_NOTES.md updated with proper RELEASED 0.4.2-alpha archiving.

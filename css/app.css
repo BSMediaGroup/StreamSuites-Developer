@@ -21,7 +21,8 @@
   --content-width-narrow: 1240px;
   --sidebar-width: 276px;
   --font-display: "Tektur", "Geist Sans", "Segoe UI Variable", "Segoe UI", system-ui, sans-serif;
-  --font-ui: "Geist Sans", "Segoe UI Variable", "Segoe UI", system-ui, sans-serif;
+  --font-heading-ui: "Geist Sans", "Segoe UI Variable", "Segoe UI", system-ui, sans-serif;
+  --font-ui: "Blinker", "Segoe UI Variable", "Segoe UI", system-ui, sans-serif;
   --font-mono: "IBM Plex Mono", "Cascadia Mono", Consolas, Menlo, Monaco, monospace;
   --weight-body: 400;
   --weight-ui-medium: 500;
@@ -88,6 +89,70 @@
   font-family: "Geist Sans";
   src: url("/assets/fonts/Geist-ExtraBold.ttf") format("truetype");
   font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Blinker";
+  src: url("/assets/fonts/body/Blinker-Thin.ttf") format("truetype");
+  font-weight: 100;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Blinker";
+  src: url("/assets/fonts/body/Blinker-ExtraLight.ttf") format("truetype");
+  font-weight: 200;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Blinker";
+  src: url("/assets/fonts/body/Blinker-Light.ttf") format("truetype");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Blinker";
+  src: url("/assets/fonts/body/Blinker-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Blinker";
+  src: url("/assets/fonts/body/Blinker-SemiBold.ttf") format("truetype");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Blinker";
+  src: url("/assets/fonts/body/Blinker-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Blinker";
+  src: url("/assets/fonts/body/Blinker-ExtraBold.ttf") format("truetype");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Blinker";
+  src: url("/assets/fonts/body/Blinker-Black.ttf") format("truetype");
+  font-weight: 900;
   font-style: normal;
   font-display: swap;
 }
@@ -181,6 +246,7 @@ code, pre, kbd, samp, .mono { font-family: var(--font-mono); font-variant-numeri
   font-weight: var(--weight-display-semibold);
   letter-spacing: -0.015em;
 }
+h3, h4, h5, h6 { font-family: var(--font-heading-ui); }
 .brand-mark, .shell-brand-mark {
   letter-spacing: 0.05em;
   font-size: 1.05rem;
